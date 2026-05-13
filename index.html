@@ -24,26 +24,19 @@
         canvas { position: fixed; top: 0; left: 0; z-index: 0; pointer-events: none; }
 
         .game-wrapper {
-            position: relative;
-            z-index: 10;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 12px;
-            width: 100%;
-            max-width: 420px;
-            min-height: 100vh;
+            position: relative; z-index: 10;
+            display: flex; flex-direction: column; align-items: center;
+            padding: 10px; width: 100%; max-width: 420px; min-height: 100vh;
         }
 
-        .title { font-size: 14px; color: #8888cc; letter-spacing: 3px; text-shadow: 0 0 20px #4444aa; margin-bottom: 6px; }
+        .title { font-size: 14px; color: #8888cc; letter-spacing: 3px; text-shadow: 0 0 20px #4444aa; margin-bottom: 4px; }
 
         .click-area {
-            width: 150px; height: 150px; border-radius: 50%; cursor: pointer;
+            width: 140px; height: 140px; border-radius: 50%; cursor: pointer;
             position: relative; transition: transform 0.05s;
-            display: flex; align-items: center; justify-content: center; margin: 4px 0;
+            display: flex; align-items: center; justify-content: center; margin: 3px 0;
         }
         .click-area:active { transform: scale(0.88); }
-
         .click-area .glow {
             position: absolute; width: 100%; height: 100%; border-radius: 50%;
             animation: pulse 2s ease-in-out infinite;
@@ -52,108 +45,138 @@
             0%, 100% { transform: scale(1); opacity: 0.6; }
             50% { transform: scale(1.35); opacity: 1; }
         }
-
         .click-area .click-skin {
-            font-size: 65px; position: relative; z-index: 2;
+            font-size: 60px; position: relative; z-index: 2;
             animation: spin 12s linear infinite;
             text-shadow: 0 0 30px #aabbff, 0 0 60px #6666cc;
         }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-        .counter { font-size: 26px; color: #d0d0ff; margin-top: 4px; text-shadow: 0 0 25px #6666cc; letter-spacing: 2px; }
-        .per-click { font-size: 9px; color: #6666aa; letter-spacing: 1px; }
+        .counter { font-size: 24px; color: #d0d0ff; margin-top: 3px; text-shadow: 0 0 25px #6666cc; }
+        .per-click { font-size: 8px; color: #6666aa; letter-spacing: 1px; }
 
         .info-row {
-            display: flex; gap: 6px; margin-top: 6px; font-size: 9px;
+            display: flex; gap: 5px; margin-top: 4px; font-size: 8px;
             color: #8888aa; flex-wrap: wrap; justify-content: center;
         }
-        .info-row span { background: #0a0a1e; padding: 3px 8px; border-radius: 8px; border: 1px solid #1a1a40; }
+        .info-row span { background: #0a0a1e; padding: 2px 7px; border-radius: 6px; border: 1px solid #1a1a40; }
 
         .bonus-bar {
             width: 100%; background: #0a0a1e; border: 1px solid #1a1a40;
-            padding: 6px 10px; border-radius: 10px; margin-top: 6px;
+            padding: 5px 8px; border-radius: 8px; margin-top: 4px;
             display: flex; justify-content: space-between; align-items: center;
-            font-size: 9px; color: #ffdd88;
+            font-size: 8px; color: #ffdd88;
         }
-        .bonus-bar .streak { color: #ffaa00; font-weight: bold; }
 
         .ton-btn {
             width: 100%; background: #0088cc; color: #fff; border: none;
-            padding: 8px; cursor: pointer; font-family: 'Courier New', monospace;
-            font-size: 10px; letter-spacing: 1px; border-radius: 15px;
-            margin-top: 6px; font-weight: bold;
+            padding: 6px; cursor: pointer; font-family: 'Courier New', monospace;
+            font-size: 9px; letter-spacing: 1px; border-radius: 12px; margin-top: 4px; font-weight: bold;
         }
-        .ton-btn.connected { background: #00aa55; }
+        .ton-btn.connected { background: #00cc66; }
 
         .meteor-alert {
-            position: fixed; top: 10%; left: 50%; transform: translateX(-50%);
-            background: #ff6600; color: #fff; padding: 10px 20px;
-            border-radius: 20px; font-family: 'Courier New', monospace;
-            font-size: 14px; font-weight: bold; z-index: 200;
+            position: fixed; top: 8%; left: 50%; transform: translateX(-50%);
+            background: #ff6600; color: #fff; padding: 8px 16px;
+            border-radius: 16px; font-family: 'Courier New', monospace;
+            font-size: 12px; font-weight: bold; z-index: 200;
             display: none; animation: meteorPulse 0.5s ease-in-out infinite;
-            text-shadow: 0 0 10px #ffaa00;
         }
         @keyframes meteorPulse {
-            0%, 100% { box-shadow: 0 0 20px #ff6600; }
-            50% { box-shadow: 0 0 50px #ffaa00, 0 0 80px #ff4400; }
+            0%, 100% { box-shadow: 0 0 15px #ff6600; }
+            50% { box-shadow: 0 0 40px #ffaa00, 0 0 60px #ff4400; }
         }
 
         .floating-bonus {
-            position: fixed; font-size: 40px; z-index: 150;
+            position: fixed; font-size: 35px; z-index: 150;
             cursor: pointer; animation: bonusFloat 4s ease-in-out infinite;
-            filter: drop-shadow(0 0 15px #ffdd00);
-            pointer-events: auto;
+            filter: drop-shadow(0 0 12px #ffdd00); pointer-events: auto;
         }
         @keyframes bonusFloat {
             0%, 100% { transform: translateY(0) rotate(0deg); }
-            25% { transform: translateY(-30px) rotate(90deg); }
+            25% { transform: translateY(-25px) rotate(90deg); }
             50% { transform: translateY(0) rotate(180deg); }
-            75% { transform: translateY(-30px) rotate(270deg); }
+            75% { transform: translateY(-25px) rotate(270deg); }
         }
 
+        .reward-popup {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: #0a0020; border: 3px solid #ffd700; padding: 20px;
+            border-radius: 20px; z-index: 400; text-align: center;
+            display: none; animation: rewardBounce 0.5s ease-out;
+            box-shadow: 0 0 60px #ffd700, 0 0 120px #ffaa00;
+        }
+        @keyframes rewardBounce {
+            0% { transform: translate(-50%, -50%) scale(0); }
+            60% { transform: translate(-50%, -50%) scale(1.15); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+        .reward-popup .reward-icon { font-size: 60px; }
+        .reward-popup .reward-text { color: #ffd700; font-size: 18px; font-weight: bold; margin: 10px 0; }
+        .reward-popup .reward-amount { color: #fff; font-size: 24px; font-weight: bold; }
+
         .tabs {
-            display: flex; gap: 2px; margin-top: 8px; flex-wrap: wrap; justify-content: center;
+            display: flex; gap: 2px; margin-top: 6px; flex-wrap: wrap; justify-content: center;
         }
         .tab-btn {
             background: #0a0a20; color: #6666aa; border: 1px solid #1a1a40;
-            padding: 5px 8px; cursor: pointer; font-family: 'Courier New', monospace;
-            font-size: 8px; letter-spacing: 1px; border-radius: 10px;
+            padding: 4px 7px; cursor: pointer; font-family: 'Courier New', monospace;
+            font-size: 7px; letter-spacing: 1px; border-radius: 8px;
         }
-        .tab-btn.active {
-            background: #1a1040; color: #bbbbff; border-color: #4444aa;
-            box-shadow: 0 0 10px #3333aa;
-        }
+        .tab-btn.active { background: #1a1040; color: #bbbbff; border-color: #4444aa; box-shadow: 0 0 8px #3333aa; }
 
         .panel {
             background: #060615; border: 1px solid #15153a;
-            width: 100%; max-height: 180px; overflow-y: auto;
-            padding: 6px; margin-top: 4px; display: none; border-radius: 6px;
+            width: 100%; max-height: 170px; overflow-y: auto;
+            padding: 5px; margin-top: 3px; display: none; border-radius: 6px;
         }
         .panel.active { display: block; }
 
+        /* TON Магазин — яркие карточки */
+        .ton-shop-card {
+            background: linear-gradient(135deg, #0a0020 0%, #150030 100%);
+            border: 2px solid #ffd700; padding: 10px; margin-bottom: 8px;
+            border-radius: 12px; text-align: center;
+            box-shadow: 0 0 20px rgba(255,215,0,0.2);
+            transition: all 0.3s;
+        }
+        .ton-shop-card:hover { box-shadow: 0 0 35px rgba(255,215,0,0.5); border-color: #fff; }
+        .ton-shop-card .shop-icon { font-size: 40px; margin-bottom: 4px; }
+        .ton-shop-card .shop-name { color: #ffd700; font-size: 13px; font-weight: bold; letter-spacing: 1px; }
+        .ton-shop-card .shop-desc { color: #aaaacc; font-size: 9px; margin: 4px 0; }
+        .ton-shop-card .shop-buff { color: #ff8800; font-size: 10px; font-weight: bold; margin: 4px 0; }
+        .ton-shop-card .shop-price {
+            color: #fff; font-size: 16px; font-weight: bold;
+            background: #ff8800; display: inline-block; padding: 5px 15px;
+            border-radius: 20px; margin: 6px 0; cursor: pointer;
+            transition: all 0.2s; letter-spacing: 1px;
+            box-shadow: 0 0 15px rgba(255,136,0,0.5);
+        }
+        .ton-shop-card .shop-price:hover {
+            background: #ffaa00; transform: scale(1.05);
+            box-shadow: 0 0 25px rgba(255,170,0,0.8);
+        }
+        .ton-shop-card .shop-rub { color: #8888aa; font-size: 8px; margin-top: 2px; }
+
         .item-row {
             background: #0a0a1e; border: 1px solid #151535;
-            padding: 6px 8px; margin-bottom: 3px; display: flex;
+            padding: 5px 7px; margin-bottom: 2px; display: flex;
             justify-content: space-between; align-items: center;
-            color: #9999cc; font-size: 9px; border-radius: 4px; gap: 4px;
+            color: #9999cc; font-size: 8px; border-radius: 3px;
         }
         .item-row button {
             background: #200840; color: #cc99ff; border: none;
-            padding: 3px 8px; cursor: pointer; font-family: 'Courier New', monospace;
-            font-size: 8px; border-radius: 8px; white-space: nowrap;
-        }
-        .item-row button.ton-buy {
-            background: #0088cc; color: #fff;
+            padding: 2px 7px; cursor: pointer; font-family: 'Courier New', monospace;
+            font-size: 7px; border-radius: 6px;
         }
         .item-row button.owned { background: #003300; color: #88ff88; }
         .item-row button.active { background: #ffaa00; color: #000; }
-        .item-row button:disabled { opacity: 0.4; }
 
         .leaderboard-item {
             background: #0a0a1e; border: 1px solid #151535;
-            padding: 5px 6px; margin-bottom: 2px; display: flex;
+            padding: 4px 5px; margin-bottom: 2px; display: flex;
             justify-content: space-between; align-items: center;
-            color: #9999cc; font-size: 9px; border-radius: 3px;
+            color: #9999cc; font-size: 8px; border-radius: 3px;
         }
         .leaderboard-item.top1 { border-color: #ffd700; background: #1a1a00; }
         .leaderboard-item.top2 { border-color: #c0c0c0; background: #1a1a1a; }
@@ -161,42 +184,40 @@
 
         .floating-text {
             position: fixed; pointer-events: none; font-family: 'Courier New', monospace;
-            font-size: 14px; color: #ccbbff; z-index: 50;
+            font-size: 13px; color: #ccbbff; z-index: 50;
             animation: floatUp 0.8s ease-out forwards;
             text-shadow: 0 0 10px #6666cc;
         }
         @keyframes floatUp {
             0% { opacity: 1; transform: translateY(0); }
-            100% { opacity: 0; transform: translateY(-60px); }
+            100% { opacity: 0; transform: translateY(-50px); }
         }
-
-        .crit-text {
-            color: #ffdd00 !important;
-            font-size: 20px !important;
-            text-shadow: 0 0 20px #ffaa00 !important;
-        }
+        .crit-text { color: #ffdd00 !important; font-size: 18px !important; text-shadow: 0 0 20px #ffaa00 !important; }
 
         .popup {
-            display: none;
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.9); z-index: 300;
             justify-content: center; align-items: center;
         }
         .popup.show { display: flex; }
-
         .popup-card {
             background: #08081a; border: 2px solid #3333aa;
-            padding: 20px; text-align: center; color: #bbbbff;
-            width: 90%; max-width: 340px; border-radius: 12px;
+            padding: 18px; text-align: center; color: #bbbbff;
+            width: 90%; max-width: 320px; border-radius: 12px;
         }
-        .popup-card h3 { margin-bottom: 10px; color: #8888ff; font-size: 15px; }
+        .popup-card h3 { margin-bottom: 8px; color: #ffd700; font-size: 14px; }
+        .popup-card .ton-pay-btn {
+            background: linear-gradient(135deg, #ff8800, #ff6600);
+            color: #fff; border: none; padding: 10px 20px;
+            cursor: pointer; font-family: 'Courier New', monospace;
+            font-size: 12px; font-weight: bold; letter-spacing: 1px;
+            border-radius: 20px; margin: 6px 0; width: 100%;
+            box-shadow: 0 0 20px rgba(255,136,0,0.5);
+        }
         .popup-card button {
             background: #1a1050; color: #bbbbff; border: none;
-            padding: 8px 16px; cursor: pointer; font-family: 'Courier New', monospace;
-            font-size: 11px; letter-spacing: 1px; margin: 4px; border-radius: 15px; width: 100%;
-        }
-        .popup-card .ton-pay-btn {
-            background: #0088cc; color: #fff; font-size: 13px; font-weight: bold;
+            padding: 7px 14px; cursor: pointer; font-family: 'Courier New', monospace;
+            font-size: 10px; border-radius: 12px; width: 100%; margin: 3px 0;
         }
     </style>
 </head>
@@ -223,7 +244,7 @@
         <div class="bonus-bar" id="bonusBar">
             <span>🔥 Бонус дня:</span>
             <span class="streak" id="streakDisplay">День 1</span>
-            <button id="claimBonusBtn" style="background:#ff8800;color:#000;border:none;padding:3px 8px;font-family:'Courier New',monospace;font-size:8px;border-radius:8px;cursor:pointer;">Забрать</button>
+            <button id="claimBonusBtn" style="background:#ff8800;color:#000;border:none;padding:2px 6px;font-family:'Courier New',monospace;font-size:7px;border-radius:6px;cursor:pointer;">Забрать</button>
         </div>
 
         <button class="ton-btn" id="tonConnectBtn">💎 Подключить TON</button>
@@ -232,7 +253,7 @@
             <button class="tab-btn active" id="invTab">🎒 Моё</button>
             <button class="tab-btn" id="skinsTab">🎨 Скины</button>
             <button class="tab-btn" id="shopTab">🛒 Буст</button>
-            <button class="tab-btn" id="tonShopTab">💎 TON</button>
+            <button class="tab-btn" id="tonShopTab">💎 TON Магазин</button>
             <button class="tab-btn" id="lbTab">🏆 Топ</button>
         </div>
 
@@ -245,12 +266,18 @@
 
     <div class="meteor-alert" id="meteorAlert">☄️ ЗВЁЗДНЫЙ ДОЖДЬ! x5 КЛИКИ! ☄️</div>
 
+    <div class="reward-popup" id="rewardPopup">
+        <div class="reward-icon" id="rewardIcon">🎁</div>
+        <div class="reward-text" id="rewardText">ПОКУПКА УСПЕШНА!</div>
+        <div class="reward-amount" id="rewardAmount"></div>
+    </div>
+
     <div class="popup" id="paymentPopup">
         <div class="popup-card">
             <h3 id="paymentTitle">Покупка</h3>
-            <p style="font-size:11px;margin:8px 0;" id="paymentDesc"></p>
-            <p style="color:#ffdd88;font-size:13px;font-weight:bold;" id="paymentAmount"></p>
-            <button class="ton-pay-btn" id="confirmPaymentBtn">💎 Оплатить через TON</button>
+            <p style="font-size:10px;margin:6px 0;color:#aaaacc;" id="paymentDesc"></p>
+            <p style="color:#ffd700;font-size:14px;font-weight:bold;" id="paymentAmount"></p>
+            <button class="ton-pay-btn" id="confirmPaymentBtn">💎 ОПЛАТИТЬ TON</button>
             <button id="cancelPaymentBtn">Отмена</button>
         </div>
     </div>
@@ -258,21 +285,13 @@
     <script>
         (function() {
             var tg = window.Telegram.WebApp;
-            tg.ready();
-            tg.expand();
+            tg.ready(); tg.expand();
 
             var userId = 'demo';
-            var username = 'Гость';
-            if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-                userId = tg.initDataUnsafe.user.id.toString();
-                username = tg.initDataUnsafe.user.first_name || 'Гость';
-            }
+            if (tg.initDataUnsafe && tg.initDataUnsafe.user) userId = tg.initDataUnsafe.user.id.toString();
 
-            // TON конфиг
             var MERCHANT_WALLET = 'UQB1zQdsU4sS-Fpuys03gXX5zccrRAC18Mz9flzZgRcTq9wv';
-            var TON_RATE = 0.5; // 0.5 TON за пак
 
-            // TON Connect
             var tonConnectUI = null;
             var connectedWallet = null;
 
@@ -281,514 +300,296 @@
                     manifestUrl: 'https://raw.githubusercontent.com/ton-community/tutorials/main/03-wallet/step-3/tonconnect-manifest.json',
                     buttonRootId: 'tonConnectBtn'
                 });
-
-                tonConnectUI.onStatusChange(function(wallet) {
-                    connectedWallet = wallet;
-                    var btn = document.getElementById('tonConnectBtn');
-                    if (wallet) {
-                        btn.textContent = '✓ ' + wallet.account.address.slice(0, 10) + '...';
-                        btn.classList.add('connected');
-                    } else {
-                        btn.textContent = '💎 Подключить TON';
-                        btn.classList.remove('connected');
-                    }
+                tonConnectUI.onStatusChange(function(w) {
+                    connectedWallet = w;
+                    var b = document.getElementById('tonConnectBtn');
+                    b.textContent = w ? '✓ ' + w.account.address.slice(0,10) + '...' : '💎 Подключить TON';
+                    if (w) b.classList.add('connected'); else b.classList.remove('connected');
                 });
-            } catch (e) {
-                console.log('TON Connect demo mode');
-            }
+            } catch(e) {}
 
-            // Звёздное поле
             var canvas = document.getElementById('starfield');
             var ctx = canvas.getContext('2d');
             var starsArray = [];
 
-            function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-            resizeCanvas();
-            window.addEventListener('resize', function() { resizeCanvas(); createStars(); });
+            function resizeCanvas() { canvas.width = innerWidth; canvas.height = innerHeight; }
+            resizeCanvas(); addEventListener('resize', function() { resizeCanvas(); createStars(); });
 
             function createStars() {
                 starsArray = [];
-                for (var i = 0; i < 200; i++) {
-                    starsArray.push({
-                        x: Math.random() * canvas.width,
-                        y: Math.random() * canvas.height,
-                        r: Math.random() * 1.2 + 0.2,
-                        phase: Math.random() * Math.PI * 2,
-                        freq: Math.random() * 0.015 + 0.005,
-                        baseAlpha: Math.random() * 0.5 + 0.3
-                    });
-                }
+                for (var i = 0; i < 200; i++) starsArray.push({
+                    x: Math.random()*canvas.width, y: Math.random()*canvas.height,
+                    r: Math.random()*1.2+0.2, phase: Math.random()*Math.PI*2,
+                    freq: Math.random()*0.015+0.005, baseAlpha: Math.random()*0.5+0.3
+                });
             }
             createStars();
 
-            var meteors = [];
-            var meteorShowerActive = false;
-
-            function spawnMeteor() {
-                return {
-                    x: Math.random() * canvas.width,
-                    y: -20,
-                    speed: Math.random() * 8 + 5,
-                    size: Math.random() * 3 + 1,
-                    opacity: 1,
-                    trail: []
-                };
-            }
+            var meteors = [], meteorShowerActive = false;
+            function spawnMeteor() { return { x: Math.random()*canvas.width, y: -20, speed: Math.random()*8+5, size: Math.random()*3+1, opacity: 1, trail: [] }; }
 
             function drawStars() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-
                 for (var i = 0; i < starsArray.length; i++) {
-                    var s = starsArray[i];
-                    s.phase += s.freq;
-                    var alpha = s.baseAlpha * (0.5 + 0.5 * Math.sin(s.phase));
-                    ctx.beginPath();
-                    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-                    ctx.fillStyle = 'rgba(200,200,255,' + alpha + ')';
-                    ctx.fill();
+                    var s = starsArray[i]; s.phase += s.freq;
+                    var a = s.baseAlpha*(0.5+0.5*Math.sin(s.phase));
+                    ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+                    ctx.fillStyle = 'rgba(200,200,255,'+a+')'; ctx.fill();
                 }
-
                 if (meteorShowerActive) {
-                    if (Math.random() < 0.4) meteors.push(spawnMeteor());
-                    for (var j = meteors.length - 1; j >= 0; j--) {
-                        var m = meteors[j];
-                        m.trail.push({ x: m.x, y: m.y });
-                        if (m.trail.length > 15) m.trail.shift();
-                        m.x += m.speed * 0.5;
-                        m.y += m.speed * 2;
-                        m.opacity -= 0.01;
-                        if (m.opacity <= 0 || m.y > canvas.height + 50) { meteors.splice(j, 1); continue; }
-                        for (var k = 0; k < m.trail.length; k++) {
-                            var t = m.trail[k];
-                            var ta = (k / m.trail.length) * m.opacity * 0.5;
-                            ctx.beginPath();
-                            ctx.arc(t.x, t.y, m.size * 0.5, 0, Math.PI * 2);
-                            ctx.fillStyle = 'rgba(255,150,50,' + ta + ')';
-                            ctx.fill();
+                    if (Math.random()<0.4) meteors.push(spawnMeteor());
+                    for (var j = meteors.length-1; j>=0; j--) {
+                        var m = meteors[j]; m.trail.push({x:m.x,y:m.y});
+                        if (m.trail.length>15) m.trail.shift();
+                        m.x+=m.speed*0.5; m.y+=m.speed*2; m.opacity-=0.01;
+                        if (m.opacity<=0||m.y>canvas.height+50) { meteors.splice(j,1); continue; }
+                        for (var k=0;k<m.trail.length;k++) {
+                            var t=m.trail[k], ta=(k/m.trail.length)*m.opacity*0.5;
+                            ctx.beginPath(); ctx.arc(t.x,t.y,m.size*0.5,0,Math.PI*2);
+                            ctx.fillStyle='rgba(255,150,50,'+ta+')'; ctx.fill();
                         }
-                        ctx.beginPath();
-                        ctx.arc(m.x, m.y, m.size, 0, Math.PI * 2);
-                        ctx.fillStyle = 'rgba(255,200,100,' + m.opacity + ')';
-                        ctx.fill();
+                        ctx.beginPath(); ctx.arc(m.x,m.y,m.size,0,Math.PI*2);
+                        ctx.fillStyle='rgba(255,200,100,'+m.opacity+')'; ctx.fill();
                     }
                 }
-
                 requestAnimationFrame(drawStars);
             }
             drawStars();
 
-            // Скины
             var skins = [
-                { id: 'default', name: 'Звезда', icon: '✦', cost: 0, tonCost: 0, glow: 'rgba(180,160,255,0.5) 0%, rgba(80,60,200,0.15) 50%, transparent 70%', color: '#aabbff' },
-                { id: 'pulsar', name: 'Пульсар', icon: '✧', cost: 1000, tonCost: 0.1, glow: 'rgba(100,255,200,0.5) 0%, rgba(0,200,100,0.15) 50%, transparent 70%', color: '#88ffcc' },
-                { id: 'nova', name: 'Сверхновая', icon: '✶', cost: 5000, tonCost: 0.3, glow: 'rgba(255,100,50,0.6) 0%, rgba(255,50,0,0.2) 50%, transparent 70%', color: '#ff6644' },
-                { id: 'galaxy', name: 'Галактика', icon: '✷', cost: 10000, tonCost: 0.5, glow: 'rgba(200,100,255,0.6) 0%, rgba(150,0,255,0.2) 50%, transparent 70%', color: '#cc88ff' },
-                { id: 'void', name: 'Пустота', icon: '✬', cost: 25000, tonCost: 1, glow: 'rgba(0,0,0,0.8) 0%, rgba(50,0,100,0.3) 50%, transparent 70%', color: '#000000' },
-                { id: 'sun', name: 'Солнце', icon: '✺', cost: 50000, tonCost: 2, glow: 'rgba(255,255,0,0.7) 0%, rgba(255,150,0,0.3) 50%, transparent 70%', color: '#ffdd00' },
-                { id: 'quasar', name: 'Квазар', icon: '≛', cost: 100000, tonCost: 5, glow: 'rgba(0,200,255,0.8) 0%, rgba(0,100,255,0.3) 50%, transparent 70%', color: '#00ccff' },
-                { id: 'cosmic', name: 'Космос', icon: '✹', cost: 250000, tonCost: 10, glow: 'rgba(255,0,255,0.6) 0%, rgba(100,0,200,0.3) 50%, transparent 70%', color: '#ff00ff' },
-                { id: 'nebula', name: 'Туманность', icon: '✫', cost: 500000, tonCost: 25, glow: 'rgba(255,100,200,0.7) 0%, rgba(200,50,150,0.3) 50%, transparent 70%', color: '#ff88cc' },
-                { id: 'god', name: 'Божество', icon: '⚝', cost: 1000000, tonCost: 50, glow: 'rgba(255,255,255,1) 0%, rgba(200,200,255,0.5) 50%, transparent 70%', color: '#ffffff' }
+                { id: 'default', name: 'Звезда', icon: '✦', cost: 0, glow: 'rgba(180,160,255,0.5) 0%, rgba(80,60,200,0.15) 50%, transparent 70%', color: '#aabbff' },
+                { id: 'pulsar', name: 'Пульсар', icon: '✧', cost: 1000, glow: 'rgba(100,255,200,0.5) 0%, rgba(0,200,100,0.15) 50%, transparent 70%', color: '#88ffcc' },
+                { id: 'nova', name: 'Сверхновая', icon: '✶', cost: 5000, glow: 'rgba(255,100,50,0.6) 0%, rgba(255,50,0,0.2) 50%, transparent 70%', color: '#ff6644' },
+                { id: 'galaxy', name: 'Галактика', icon: '✷', cost: 10000, glow: 'rgba(200,100,255,0.6) 0%, rgba(150,0,255,0.2) 50%, transparent 70%', color: '#cc88ff' },
+                { id: 'void', name: 'Пустота', icon: '✬', cost: 25000, glow: 'rgba(0,0,0,0.8) 0%, rgba(50,0,100,0.3) 50%, transparent 70%', color: '#000000' },
+                { id: 'sun', name: 'Солнце', icon: '✺', cost: 50000, glow: 'rgba(255,255,0,0.7) 0%, rgba(255,150,0,0.3) 50%, transparent 70%', color: '#ffdd00' },
+                { id: 'quasar', name: 'Квазар', icon: '≛', cost: 100000, glow: 'rgba(0,200,255,0.8) 0%, rgba(0,100,255,0.3) 50%, transparent 70%', color: '#00ccff' },
+                { id: 'god', name: 'Божество', icon: '⚝', cost: 1000000, glow: 'rgba(255,255,255,1) 0%, rgba(200,200,255,0.5) 50%, transparent 70%', color: '#ffffff' }
             ];
 
-            // Данные игрока
-            var starCount = 0;
-            var clickPower = 1;
-            var activeSkin = 'default';
-            var ownedSkins = ['default'];
-            var inventoryItems = [];
-            var clicksToday = 0;
-            var maxClicksToday = 500;
-            var dailyStreak = 0;
-            var lastClaimDate = '';
-            var critChance = 10;
-            var critMultiplier = 3;
-            var autoClickerLevel = 0;
-            var autoClickerInterval = null;
-            var unlimitedClicks = false;
+            var starCount = 0, clickPower = 1, activeSkin = 'default', ownedSkins = ['default'];
+            var inventoryItems = [], clicksToday = 0, maxClicksToday = 500;
+            var dailyStreak = 0, lastClaimDate = '';
+            var critChance = 10, critMultiplier = 3;
+            var autoClickerLevel = 0, autoClickerInterval = null;
+            var unlimitedClicks = false, vipActive = false, doubleStars = false;
 
             try {
-                var data = JSON.parse(localStorage.getItem('cosmic4_' + userId) || '{}');
-                starCount = data.starCount || 0;
-                clickPower = data.clickPower || 1;
-                activeSkin = data.activeSkin || 'default';
-                ownedSkins = data.ownedSkins || ['default'];
-                inventoryItems = data.inventoryItems || [];
-                clicksToday = data.clicksToday || 0;
-                maxClicksToday = data.maxClicksToday || 500;
-                dailyStreak = data.dailyStreak || 0;
-                lastClaimDate = data.lastClaimDate || '';
-                critChance = data.critChance || 10;
-                critMultiplier = data.critMultiplier || 3;
-                autoClickerLevel = data.autoClickerLevel || 0;
-                unlimitedClicks = data.unlimitedClicks || false;
-            } catch (e) {}
+                var d = JSON.parse(localStorage.getItem('cosmic5_'+userId)||'{}');
+                starCount=d.starCount||0; clickPower=d.clickPower||1; activeSkin=d.activeSkin||'default';
+                ownedSkins=d.ownedSkins||['default']; inventoryItems=d.inventoryItems||[];
+                clicksToday=d.clicksToday||0; maxClicksToday=d.maxClicksToday||500;
+                dailyStreak=d.dailyStreak||0; lastClaimDate=d.lastClaimDate||'';
+                critChance=d.critChance||10; critMultiplier=d.critMultiplier||3;
+                autoClickerLevel=d.autoClickerLevel||0; unlimitedClicks=d.unlimitedClicks||false;
+                vipActive=d.vipActive||false; doubleStars=d.doubleStars||false;
+            } catch(e) {}
 
             function save() {
-                try {
-                    localStorage.setItem('cosmic4_' + userId, JSON.stringify({
-                        starCount: starCount, clickPower: clickPower,
-                        activeSkin: activeSkin, ownedSkins: ownedSkins,
-                        inventoryItems: inventoryItems, clicksToday: clicksToday,
-                        maxClicksToday: maxClicksToday, dailyStreak: dailyStreak,
-                        lastClaimDate: lastClaimDate, critChance: critChance,
-                        critMultiplier: critMultiplier, autoClickerLevel: autoClickerLevel,
-                        unlimitedClicks: unlimitedClicks
-                    }));
-                } catch (e) {}
+                try { localStorage.setItem('cosmic5_'+userId, JSON.stringify({
+                    starCount, clickPower, activeSkin, ownedSkins, inventoryItems,
+                    clicksToday, maxClicksToday, dailyStreak, lastClaimDate,
+                    critChance, critMultiplier, autoClickerLevel, unlimitedClicks,
+                    vipActive, doubleStars
+                })); } catch(e) {}
                 updateLeaderboard();
             }
 
-            function getActiveSkinData() {
-                for (var i = 0; i < skins.length; i++) {
-                    if (skins[i].id === activeSkin) return skins[i];
-                }
-                return skins[0];
-            }
-
-            function updateClickArea() {
-                var skin = getActiveSkinData();
-                document.getElementById('clickSkin').textContent = skin.icon;
-                document.getElementById('clickSkin').style.textShadow = '0 0 30px ' + skin.color + ', 0 0 60px ' + skin.color;
-                document.getElementById('clickGlow').style.background = 'radial-gradient(circle, ' + skin.glow + ')';
-            }
+            function getSkin() { for(var i=0;i<skins.length;i++) if(skins[i].id===activeSkin) return skins[i]; return skins[0]; }
 
             function updateUI() {
                 document.getElementById('counter').textContent = starCount + ' ✦';
-                var limitText = unlimitedClicks ? '∞' : (clicksToday + '/' + maxClicksToday);
-                document.getElementById('perClick').textContent = '+' + clickPower + ' | Крит: ' + critChance + '% x' + critMultiplier + (unlimitedClicks ? ' | БЕЗЛИМИТ' : '');
+                var lt = unlimitedClicks ? '∞' : (clicksToday+'/'+maxClicksToday);
+                var extra = [];
+                if (unlimitedClicks) extra.push('БЕЗЛИМИТ');
+                if (vipActive) extra.push('VIPx3');
+                if (doubleStars) extra.push('x2 ЗВЁЗД');
+                document.getElementById('perClick').textContent = '+' + clickPower + ' | Крит:' + critChance + '% x' + critMultiplier + (extra.length ? ' | ' + extra.join(' | ') : '');
                 document.getElementById('starDisplay').textContent = '✦: ' + starCount;
-                document.getElementById('limitDisplay').textContent = limitText;
-                updateClickArea();
-                updateBonusBar();
-                renderAll();
-                updateAutoClicker();
-                save();
+                document.getElementById('limitDisplay').textContent = lt;
+                var sk = getSkin();
+                document.getElementById('clickSkin').textContent = sk.icon;
+                document.getElementById('clickSkin').style.textShadow = '0 0 30px ' + sk.color + ', 0 0 60px ' + sk.color;
+                document.getElementById('clickGlow').style.background = 'radial-gradient(circle, ' + sk.glow + ')';
+                updateBonusBar(); renderAll(); updateAutoClicker(); save();
             }
 
-            function spawnFloatingText(x, y, text, isCrit) {
+            function spawnText(x,y,txt,crit) {
                 var el = document.createElement('div');
-                el.className = 'floating-text' + (isCrit ? ' crit-text' : '');
-                el.textContent = text;
-                el.style.left = Math.max(0, x - 25) + 'px';
-                el.style.top = Math.max(0, y - 20) + 'px';
-                document.body.appendChild(el);
-                setTimeout(function() { el.remove(); }, 800);
+                el.className = 'floating-text' + (crit?' crit-text':'');
+                el.textContent = txt; el.style.left = Math.max(0,x-25)+'px'; el.style.top = Math.max(0,y-20)+'px';
+                document.body.appendChild(el); setTimeout(function(){ el.remove(); }, 800);
             }
 
-            // Защита от автокликеров
-            var clickTimestamps = [];
-            var CLICK_WINDOW = 1000;
-            var MAX_CLICKS_PER_WINDOW = 15;
-            var BLOCK_DURATION = 5000;
-            var clickBlockedUntil = 0;
-            var warningCount = 0;
-            var MAX_WARNINGS = 3;
+            function showReward(icon, text, amount) {
+                document.getElementById('rewardIcon').textContent = icon;
+                document.getElementById('rewardText').textContent = text;
+                document.getElementById('rewardAmount').textContent = amount;
+                document.getElementById('rewardPopup').style.display = 'block';
+                setTimeout(function() { document.getElementById('rewardPopup').style.display = 'none'; }, 2500);
+            }
 
-            function isAutoClickerDetected() {
-                var now = Date.now();
-                if (now < clickBlockedUntil) return true;
-                clickTimestamps.push(now);
-                while (clickTimestamps.length > 0 && clickTimestamps[0] < now - CLICK_WINDOW) {
-                    clickTimestamps.shift();
-                }
-                if (clickTimestamps.length > MAX_CLICKS_PER_WINDOW) {
-                    warningCount++;
-                    clickBlockedUntil = now + BLOCK_DURATION * warningCount;
-                    clickTimestamps = [];
-                    return true;
-                }
-                if (clickTimestamps.length >= 5) {
-                    var intervals = [];
-                    for (var i = 1; i < clickTimestamps.length; i++) {
-                        intervals.push(clickTimestamps[i] - clickTimestamps[i - 1]);
-                    }
-                    var allSame = true;
-                    for (var j = 1; j < intervals.length; j++) {
-                        if (Math.abs(intervals[j] - intervals[0]) > 5) { allSame = false; break; }
-                    }
-                    if (allSame && intervals[0] < 100) {
-                        warningCount++;
-                        clickBlockedUntil = now + BLOCK_DURATION * warningCount;
-                        clickTimestamps = [];
-                        return true;
-                    }
-                }
+            var clickTimestamps = [], BLOCK_DURATION = 5000, clickBlockedUntil = 0, warningCount = 0;
+            function isAutoClicker() {
+                var n = Date.now();
+                if (n < clickBlockedUntil) return true;
+                clickTimestamps.push(n);
+                while (clickTimestamps.length && clickTimestamps[0] < n-1000) clickTimestamps.shift();
+                if (clickTimestamps.length > 15) { warningCount++; clickBlockedUntil = n+BLOCK_DURATION*warningCount; clickTimestamps=[]; return true; }
                 return false;
             }
 
-            // Клик
             document.getElementById('clickArea').addEventListener('click', function(e) {
-                if (!unlimitedClicks && clicksToday >= maxClicksToday) {
-                    spawnFloatingText(e.clientX, e.clientY, 'ЛИМИТ', false);
-                    return;
-                }
-
-                if (isAutoClickerDetected()) {
-                    spawnFloatingText(e.clientX, e.clientY, 'АВТОКЛИК!', false);
-                    updateUI();
-                    return;
-                }
-
-                var gained = clickPower;
-                var isCrit = false;
-
-                if (Math.random() * 100 < critChance) {
-                    gained = Math.floor(clickPower * critMultiplier);
-                    isCrit = true;
-                }
-
-                if (meteorShowerActive) {
-                    gained = gained * 5;
-                    isCrit = true;
-                }
-
-                starCount += gained;
-                clicksToday++;
-                spawnFloatingText(e.clientX, e.clientY, '+' + gained + (isCrit ? ' ⚡' : ''), isCrit);
+                if (!unlimitedClicks && clicksToday >= maxClicksToday) { spawnText(e.clientX, e.clientY, 'ЛИМИТ', false); return; }
+                if (isAutoClicker()) { spawnText(e.clientX, e.clientY, 'СТОП', false); updateUI(); return; }
+                var gained = clickPower, isCrit = false;
+                if (Math.random()*100 < critChance) { gained = Math.floor(clickPower*critMultiplier); isCrit = true; }
+                if (meteorShowerActive) { gained *= 5; isCrit = true; }
+                if (doubleStars) gained *= 2;
+                starCount += gained; clicksToday++;
+                spawnText(e.clientX, e.clientY, '+' + gained + (isCrit?' ⚡':''), isCrit);
                 updateUI();
             });
 
-            // Автокликер
             function updateAutoClicker() {
                 if (autoClickerInterval) clearInterval(autoClickerInterval);
                 if (autoClickerLevel > 0) {
-                    var speeds = [0, 2000, 1500, 1000, 600, 300];
-                    var clicks = [0, 1, 1, 2, 3, 5];
-                    var speed = speeds[autoClickerLevel] || 2000;
-                    var perTick = clicks[autoClickerLevel] || 1;
+                    var sp = [0,2000,1500,1000,600,300][autoClickerLevel]||2000;
+                    var pt = [0,1,1,2,3,5][autoClickerLevel]||1;
                     autoClickerInterval = setInterval(function() {
                         if (unlimitedClicks || clicksToday < maxClicksToday) {
-                            var gained = clickPower * perTick;
-                            if (meteorShowerActive) gained = gained * 5;
-                            starCount += gained;
-                            clicksToday += perTick;
-                            updateUI();
+                            var g = clickPower*pt; if (meteorShowerActive) g*=5; if (doubleStars) g*=2;
+                            starCount += g; clicksToday += pt; updateUI();
                         }
-                    }, speed);
+                    }, sp);
                 }
             }
 
-            // Звёздный дождь
-            function triggerMeteorShower() {
-                meteorShowerActive = true;
-                meteors = [];
-                document.getElementById('meteorAlert').style.display = 'block';
-                document.body.style.background = '#0a0015';
-                setTimeout(function() {
-                    meteorShowerActive = false;
-                    document.getElementById('meteorAlert').style.display = 'none';
-                    document.body.style.background = '#020010';
-                }, 10000);
-            }
+            function triggerShower() { meteorShowerActive=true; meteors=[]; document.getElementById('meteorAlert').style.display='block'; setTimeout(function(){ meteorShowerActive=false; document.getElementById('meteorAlert').style.display='none'; }, 10000); }
+            setInterval(function() { if (!meteorShowerActive && Math.random()<0.3) triggerShower(); }, 300000);
 
-            setInterval(function() {
-                if (!meteorShowerActive && Math.random() < 0.3) triggerMeteorShower();
-            }, 300000);
-
-            // Парящие бонусы
-            function spawnFloatingBonus() {
-                var el = document.createElement('div');
-                el.className = 'floating-bonus';
-                el.textContent = '💫';
-                el.style.left = Math.random() * (window.innerWidth - 60) + 'px';
-                el.style.top = Math.random() * (window.innerHeight - 200) + 100 + 'px';
-                el.style.pointerEvents = 'auto';
+            function spawnBonus() {
+                var el = document.createElement('div'); el.className='floating-bonus'; el.textContent='💫';
+                el.style.left = Math.random()*(innerWidth-60)+'px'; el.style.top = Math.random()*(innerHeight-200)+100+'px';
                 document.body.appendChild(el);
-
-                var bonusAmount = Math.floor(Math.random() * 900) + 100;
-                el.addEventListener('click', function(ev) {
-                    ev.stopPropagation();
-                    starCount += bonusAmount;
-                    spawnFloatingText(ev.clientX, ev.clientY, '+' + bonusAmount + ' БОНУС', true);
-                    el.remove();
-                    updateUI();
-                });
-
-                setTimeout(function() { if (el.parentNode) el.remove(); }, 8000);
+                var amt = Math.floor(Math.random()*900)+100;
+                el.addEventListener('click', function(ev) { ev.stopPropagation(); starCount+=amt; spawnText(ev.clientX,ev.clientY,'+'+amt+' БОНУС',true); el.remove(); updateUI(); });
+                setTimeout(function() { if(el.parentNode) el.remove(); }, 8000);
             }
+            setInterval(function() { if (Math.random()<0.5) spawnBonus(); }, 45000);
 
-            setInterval(function() {
-                if (Math.random() < 0.5) spawnFloatingBonus();
-            }, 45000);
-
-            // Ежедневный бонус
             function updateBonusBar() {
-                var today = new Date().toDateString();
-                if (lastClaimDate === today) {
-                    document.getElementById('claimBonusBtn').textContent = '✓';
-                    document.getElementById('claimBonusBtn').style.background = '#00aa44';
-                    document.getElementById('claimBonusBtn').disabled = true;
-                } else {
-                    document.getElementById('claimBonusBtn').textContent = 'Забрать';
-                    document.getElementById('claimBonusBtn').style.background = '#ff8800';
-                    document.getElementById('claimBonusBtn').disabled = false;
-                }
-                document.getElementById('streakDisplay').textContent = 'День ' + (dailyStreak + 1);
+                var t = new Date().toDateString();
+                document.getElementById('claimBonusBtn').textContent = lastClaimDate===t ? '✓' : 'Забрать';
+                document.getElementById('claimBonusBtn').style.background = lastClaimDate===t ? '#00aa44' : '#ff8800';
+                document.getElementById('claimBonusBtn').disabled = lastClaimDate===t;
+                document.getElementById('streakDisplay').textContent = 'День '+(dailyStreak+1);
             }
 
             document.getElementById('claimBonusBtn').addEventListener('click', function() {
-                var today = new Date().toDateString();
-                var yesterday = new Date(Date.now() - 86400000).toDateString();
-                if (lastClaimDate === today) return;
-                if (lastClaimDate === yesterday || lastClaimDate === '') { dailyStreak++; } else { dailyStreak = 1; }
-                var bonus = dailyStreak * 100 + Math.floor(Math.random() * 200);
-                starCount += bonus;
-                lastClaimDate = today;
-                spawnFloatingText(window.innerWidth / 2, window.innerHeight / 2, '+' + bonus + ' БОНУС ДНЯ!', true);
+                var t = new Date().toDateString(), y = new Date(Date.now()-86400000).toDateString();
+                if (lastClaimDate===t) return;
+                dailyStreak = (lastClaimDate===y||lastClaimDate==='') ? dailyStreak+1 : 1;
+                var bonus = dailyStreak*100+Math.floor(Math.random()*200);
+                starCount += bonus; lastClaimDate = t;
+                showReward('🔥', 'ЕЖЕДНЕВНЫЙ БОНУС!', '+' + bonus + ' ✦');
                 updateUI();
             });
 
-            // ==================== ПЛАТЕЖИ TON ====================
+            // ==================== TON ПЛАТЕЖИ С НАГРАДОЙ ====================
             var pendingPayment = null;
 
-            function requestTonPayment(itemName, tonAmount, onSuccess) {
-                if (!connectedWallet) {
-                    alert('Сначала подключите TON кошелёк! (кнопка "Подключить TON")');
-                    return;
-                }
-
-                pendingPayment = { name: itemName, amount: tonAmount, callback: onSuccess };
-
-                document.getElementById('paymentTitle').textContent = 'Покупка: ' + itemName;
-                document.getElementById('paymentDesc').textContent = 'Перевод на кошелёк продавца';
-                document.getElementById('paymentAmount').textContent = tonAmount + ' TON';
+            function requestTonPayment(name, tonAmount, icon, rewardText, rewardAmount, callback) {
+                if (!connectedWallet) { alert('Подключите TON кошелёк!'); return; }
+                pendingPayment = { name, amount: tonAmount, icon, rewardText, rewardAmount, callback };
+                document.getElementById('paymentTitle').textContent = icon + ' ' + name;
+                document.getElementById('paymentDesc').textContent = 'Оплата на кошелёк продавца';
+                document.getElementById('paymentAmount').textContent = tonAmount + ' TON ≈ ' + Math.floor(tonAmount*280) + ' ₽';
                 document.getElementById('paymentPopup').classList.add('show');
             }
 
             document.getElementById('confirmPaymentBtn').addEventListener('click', function() {
                 if (!pendingPayment) return;
-
-                var transaction = {
-                    validUntil: Math.floor(Date.now() / 1000) + 600,
-                    messages: [{
-                        address: MERCHANT_WALLET,
-                        amount: Math.floor(pendingPayment.amount * 1000000000).toString()
-                    }]
+                var tx = {
+                    validUntil: Math.floor(Date.now()/1000)+600,
+                    messages: [{ address: MERCHANT_WALLET, amount: Math.floor(pendingPayment.amount*1000000000).toString() }]
                 };
-
                 try {
-                    tonConnectUI.sendTransaction(transaction).then(function(result) {
-                        console.log('Transaction sent:', result);
-                        alert('✅ Платёж отправлен! Ожидайте подтверждения в блокчейне TON.\n\nПосле подтверждения покупка активируется.');
+                    tonConnectUI.sendTransaction(tx).then(function() {
+                        showReward(pendingPayment.icon, pendingPayment.rewardText, pendingPayment.rewardAmount);
                         if (pendingPayment.callback) pendingPayment.callback();
                         document.getElementById('paymentPopup').classList.remove('show');
-                        pendingPayment = null;
-                        updateUI();
-                    }).catch(function(err) {
-                        console.log('Transaction failed:', err);
-                        alert('❌ Платёж отменён или не удался.');
+                        pendingPayment = null; updateUI();
+                    }).catch(function() {
+                        alert('Платёж отменён.');
                         document.getElementById('paymentPopup').classList.remove('show');
                         pendingPayment = null;
                     });
-                } catch (e) {
-                    // Демо-режим
-                    alert('✅ ДЕМО: Платёж на ' + pendingPayment.amount + ' TON отправлен!\n\nВ реальном режиме TON уйдёт на кошелёк:\n' + MERCHANT_WALLET.slice(0, 20) + '...');
+                } catch(e) {
+                    // Демо
+                    showReward(pendingPayment.icon, pendingPayment.rewardText + ' (ДЕМО)', pendingPayment.rewardAmount);
                     if (pendingPayment.callback) pendingPayment.callback();
                     document.getElementById('paymentPopup').classList.remove('show');
-                    pendingPayment = null;
-                    updateUI();
+                    pendingPayment = null; updateUI();
                 }
             });
 
             document.getElementById('cancelPaymentBtn').addEventListener('click', function() {
-                document.getElementById('paymentPopup').classList.remove('show');
-                pendingPayment = null;
+                document.getElementById('paymentPopup').classList.remove('show'); pendingPayment = null;
             });
 
             // ==================== ТАБЫ ====================
-            function switchTab(name) {
-                document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
-                document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
-                document.getElementById(name + 'Tab').classList.add('active');
-                document.getElementById(name).classList.add('active');
+            function switchTab(n) {
+                document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active')});
+                document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active')});
+                document.getElementById(n+'Tab').classList.add('active');
+                document.getElementById(n).classList.add('active');
             }
+            document.getElementById('invTab').addEventListener('click', function(){switchTab('inventory')});
+            document.getElementById('skinsTab').addEventListener('click', function(){switchTab('skins')});
+            document.getElementById('shopTab').addEventListener('click', function(){switchTab('shop')});
+            document.getElementById('tonShopTab').addEventListener('click', function(){switchTab('tonShop')});
+            document.getElementById('lbTab').addEventListener('click', function(){switchTab('leaderboard')});
 
-            document.getElementById('invTab').addEventListener('click', function() { switchTab('inventory'); });
-            document.getElementById('skinsTab').addEventListener('click', function() { switchTab('skins'); });
-            document.getElementById('shopTab').addEventListener('click', function() { switchTab('shop'); });
-            document.getElementById('tonShopTab').addEventListener('click', function() { switchTab('tonShop'); });
-            document.getElementById('lbTab').addEventListener('click', function() { switchTab('leaderboard'); });
-
-            // ==================== ИНВЕНТАРЬ ====================
             function renderInventory() {
-                var inv = document.getElementById('inventory');
-                var skin = getActiveSkinData();
-                var html = '<div class="item-row"><span>🎨 Скин</span><span>' + skin.icon + ' ' + skin.name + '</span></div>';
-                html += '<div class="item-row"><span>⚡ Сила</span><span>x' + clickPower + '</span></div>';
-                html += '<div class="item-row"><span>🎯 Крит</span><span>' + critChance + '% x' + critMultiplier + '</span></div>';
-                html += '<div class="item-row"><span>🤖 Автоклик</span><span>Ур.' + autoClickerLevel + '/5</span></div>';
-                html += '<div class="item-row"><span>🔓 Лимит</span><span>' + (unlimitedClicks ? 'Безлимит' : maxClicksToday + '/день') + '</span></div>';
-                html += '<div class="item-row"><span>🔥 Стрик</span><span>' + dailyStreak + ' дн.</span></div>';
-                inv.innerHTML = html;
+                var s = getSkin();
+                document.getElementById('inventory').innerHTML =
+                    '<div class="item-row"><span>🎨 Скин</span><span>'+s.icon+' '+s.name+'</span></div>'+
+                    '<div class="item-row"><span>⚡ Сила</span><span>x'+clickPower+'</span></div>'+
+                    '<div class="item-row"><span>🎯 Крит</span><span>'+critChance+'% x'+critMultiplier+'</span></div>'+
+                    '<div class="item-row"><span>🤖 Автоклик</span><span>Ур.'+autoClickerLevel+'/5</span></div>'+
+                    '<div class="item-row"><span>🔓 Лимит</span><span>'+(unlimitedClicks?'Безлимит':maxClicksToday+'/день')+'</span></div>'+
+                    '<div class="item-row"><span>👑 VIP</span><span>'+(vipActive?'Да':'Нет')+'</span></div>'+
+                    '<div class="item-row"><span>💫 x2 Звёзд</span><span>'+(doubleStars?'Да':'Нет')+'</span></div>';
             }
 
-            // ==================== СКИНЫ ====================
             function renderSkins() {
-                var panel = document.getElementById('skins');
-                var html = '<div style="color:#8888aa;font-size:8px;text-align:center;margin-bottom:4px;">Можно купить за ✦ или TON</div>';
-                for (var i = 0; i < skins.length; i++) {
-                    var s = skins[i];
-                    var owned = ownedSkins.indexOf(s.id) !== -1;
-                    var isActive = activeSkin === s.id;
-                    var btnText = isActive ? '✓' : (owned ? 'Выбрать' : s.cost + ' ✦');
-                    var btnClass = isActive ? 'active' : (owned ? 'owned' : '');
-                    html += '<div class="item-row"><span>' + s.icon + ' ' + s.name + '</span>';
-                    if (!owned) {
-                        html += '<button class="' + btnClass + '" data-id="' + s.id + '" data-action="stars">' + btnText + '</button>';
-                        if (s.tonCost > 0) {
-                            html += '<button class="ton-buy" data-id="' + s.id + '" data-action="ton">' + s.tonCost + ' TON</button>';
-                        }
-                    } else {
-                        html += '<button class="' + btnClass + '" data-id="' + s.id + '" data-action="equip">' + btnText + '</button>';
-                    }
-                    html += '</div>';
+                var h = '';
+                for (var i=0;i<skins.length;i++) {
+                    var s=skins[i], owned=ownedSkins.indexOf(s.id)!==-1, active=activeSkin===s.id;
+                    h += '<div class="item-row"><span>'+s.icon+' '+s.name+'</span>';
+                    if (!owned) h += '<button data-id="'+s.id+'" data-action="stars">'+s.cost+' ✦</button>';
+                    else h += '<button class="'+(active?'active':'owned')+'" data-id="'+s.id+'" data-action="equip">'+(active?'✓':'Выбрать')+'</button>';
+                    h += '</div>';
                 }
-                panel.innerHTML = html;
-                panel.querySelectorAll('button').forEach(function(btn) {
-                    btn.addEventListener('click', function() {
-                        var id = this.getAttribute('data-id');
-                        var action = this.getAttribute('data-action');
-
-                        if (action === 'equip') {
-                            activeSkin = id;
-                            updateUI();
-                            return;
-                        }
-
-                        if (action === 'ton') {
-                            for (var j = 0; j < skins.length; j++) {
-                                if (skins[j].id === id) {
-                                    requestTonPayment('Скин: ' + skins[j].name, skins[j].tonCost, function() {
-                                        ownedSkins.push(id);
-                                        activeSkin = id;
-                                    });
-                                    return;
-                                }
-                            }
-                        }
-
-                        if (action === 'stars') {
-                            for (var j = 0; j < skins.length; j++) {
-                                if (skins[j].id === id && starCount >= skins[j].cost) {
-                                    starCount -= skins[j].cost;
-                                    ownedSkins.push(id);
-                                    activeSkin = id;
-                                    updateUI();
-                                    return;
-                                }
+                document.getElementById('skins').innerHTML = h;
+                document.getElementById('skins').querySelectorAll('button').forEach(function(b){
+                    b.addEventListener('click', function(){
+                        var id=this.dataset.id, act=this.dataset.action;
+                        if (act==='equip') { activeSkin=id; updateUI(); return; }
+                        for (var j=0;j<skins.length;j++) {
+                            if (skins[j].id===id && starCount>=skins[j].cost) {
+                                starCount-=skins[j].cost; ownedSkins.push(id); activeSkin=id; updateUI(); return;
                             }
                         }
                     });
                 });
             }
 
-            // ==================== МАГАЗИН БУСТОВ ====================
             var boostItems = [
                 { id: 'b2', name: 'x2 Сила', icon: '⚡', cost: 500, power: 2 },
                 { id: 'b5', name: 'x5 Сила', icon: '🔥', cost: 2000, power: 5 },
                 { id: 'b10', name: 'x10 Сила', icon: '💥', cost: 5000, power: 10 },
-                { id: 'b50', name: 'x50 Сила', icon: '🌋', cost: 25000, power: 50 },
                 { id: 'critUp', name: 'Крит 25%', icon: '🎯', cost: 3000, critChance: 25 },
                 { id: 'critUp2', name: 'Крит x10', icon: '💎', cost: 15000, critMultiplier: 10 },
                 { id: 'auto1', name: 'Автоклик 1', icon: '🤖', cost: 2000, autoLevel: 1 },
@@ -799,68 +600,74 @@
             ];
 
             function renderShop() {
-                var shop = document.getElementById('shop');
-                var html = '';
-                for (var i = 0; i < boostItems.length; i++) {
-                    var item = boostItems[i];
-                    var canBuy = starCount >= item.cost;
-                    html += '<div class="item-row"><span>' + item.icon + ' ' + item.name + '</span><button ' + (canBuy ? '' : 'disabled') + ' data-id="' + item.id + '">' + item.cost + ' ✦</button></div>';
+                var h = '';
+                for (var i=0;i<boostItems.length;i++) {
+                    var it=boostItems[i];
+                    h += '<div class="item-row"><span>'+it.icon+' '+it.name+'</span><button '+(starCount>=it.cost?'':'disabled')+' data-id="'+it.id+'">'+it.cost+' ✦</button></div>';
                 }
-                shop.innerHTML = html;
-                shop.querySelectorAll('button').forEach(function(btn) {
-                    btn.addEventListener('click', function() {
-                        var id = this.getAttribute('data-id');
-                        for (var j = 0; j < boostItems.length; j++) {
-                            var item = boostItems[j];
-                            if (item.id === id && starCount >= item.cost) {
-                                starCount -= item.cost;
-                                if (item.power) clickPower = item.power;
-                                if (item.limit) maxClicksToday += item.limit;
-                                if (item.critChance) critChance = item.critChance;
-                                if (item.critMultiplier) critMultiplier = item.critMultiplier;
-                                if (item.autoLevel && item.autoLevel > autoClickerLevel) autoClickerLevel = item.autoLevel;
-                                var found = false;
-                                for (var k = 0; k < inventoryItems.length; k++) {
-                                    if (inventoryItems[k].id === id) { inventoryItems[k].count++; found = true; break; }
-                                }
-                                if (!found) inventoryItems.push({ id: id, name: item.name, icon: item.icon, count: 1 });
-                                updateUI();
-                                break;
+                document.getElementById('shop').innerHTML = h;
+                document.getElementById('shop').querySelectorAll('button').forEach(function(b){
+                    b.addEventListener('click', function(){
+                        var id=this.dataset.id;
+                        for (var j=0;j<boostItems.length;j++) {
+                            var it=boostItems[j];
+                            if (it.id===id && starCount>=it.cost) {
+                                starCount-=it.cost;
+                                if (it.power) clickPower=it.power;
+                                if (it.limit) maxClicksToday+=it.limit;
+                                if (it.critChance) critChance=it.critChance;
+                                if (it.critMultiplier) critMultiplier=it.critMultiplier;
+                                if (it.autoLevel && it.autoLevel>autoClickerLevel) autoClickerLevel=it.autoLevel;
+                                var f=false;
+                                for (var k=0;k<inventoryItems.length;k++) if (inventoryItems[k].id===id) { inventoryItems[k].count++; f=true; break; }
+                                if (!f) inventoryItems.push({id, name:it.name, icon:it.icon, count:1});
+                                updateUI(); break;
                             }
                         }
                     });
                 });
             }
 
-            // ==================== TON МАГАЗИН ====================
+            // ==================== TON МАГАЗИН — ЯРКИЕ КАРТОЧКИ ====================
             var tonShopItems = [
-                { id: 'stars1', name: '10000 ✦', icon: '⭐', tonCost: 1, stars: 10000 },
-                { id: 'stars2', name: '50000 ✦', icon: '🌟', tonCost: 4, stars: 50000 },
-                { id: 'stars3', name: '200000 ✦', icon: '💫', tonCost: 15, stars: 200000 },
-                { id: 'unlimited', name: 'Безлимит кликов', icon: '♾️', tonCost: 5, unlimited: true },
-                { id: 'vip', name: 'VIP x3 звёзд', icon: '👑', tonCost: 10, vip: true },
+                { id: 'pack10000', name: 'НАБОР ЗВЁЗД', icon: '⭐', price: 1, stars: 10000, desc: '10 000 звёзд на скины и бусты', buff: '+10 000 ✦', rewardIcon: '⭐', rewardText: 'ЗВЁЗДЫ ПОЛУЧЕНЫ!', rewardAmt: '+10 000 ✦' },
+                { id: 'pack50000', name: 'БОЛЬШОЙ НАБОР', icon: '🌟', price: 4, stars: 50000, desc: '50 000 звёзд + бонус 5 000', buff: '+55 000 ✦', rewardIcon: '🌟', rewardText: 'МЕГА НАБОР!', rewardAmt: '+55 000 ✦' },
+                { id: 'pack200000', name: 'ГИГАНТСКИЙ НАБОР', icon: '💫', price: 15, stars: 200000, desc: '200 000 звёзд + бонус 25 000', buff: '+225 000 ✦', rewardIcon: '💫', rewardText: 'ГИГАНТ!', rewardAmt: '+225 000 ✦' },
+                { id: 'unlimited', name: 'БЕЗЛИМИТ КЛИКОВ', icon: '♾️', price: 5, desc: 'Кликай сколько хочешь, без ограничений', buff: 'Безлимит навсегда', rewardIcon: '♾️', rewardText: 'БЕЗЛИМИТ АКТИВИРОВАН!', rewardAmt: 'Кликай без конца!' },
+                { id: 'vip', name: 'VIP СТАТУС', icon: '👑', price: 10, desc: 'Все клики дают x3 звёзд НАВСЕГДА', buff: 'x3 звёзд навсегда', rewardIcon: '👑', rewardText: 'VIP АКТИВИРОВАН!', rewardAmt: 'ВСЕ КЛИКИ x3!' },
+                { id: 'double', name: 'ДВОЙНЫЕ ЗВЁЗДЫ', icon: '✨', price: 8, desc: 'Удваивает ВСЕ получаемые звёзды', buff: 'x2 на все звёзды', rewardIcon: '✨', rewardText: 'ДВОЙНЫЕ ЗВЁЗДЫ!', rewardAmt: 'ВСЁ x2!' },
+                { id: 'critBoost', name: 'КРИТ-БУСТ', icon: '💥', price: 3, desc: 'Шанс крита 50% и множитель x10', buff: 'Крит 50% x10', rewardIcon: '💥', rewardText: 'КРИТ-БУСТ!', rewardAmt: 'Крит 50% x10!' },
+                { id: 'auto5', name: 'АВТОКЛИКЕР V', icon: '🤖', price: 7, desc: 'Автокликер 5 уровня: 5 кликов/0.3с', buff: 'Автокликер макс.', rewardIcon: '🤖', rewardText: 'АВТОКЛИКЕР V!', rewardAmt: '5 кликов/0.3с!' },
             ];
 
             function renderTonShop() {
-                var panel = document.getElementById('tonShop');
-                var html = '<div style="color:#ffdd88;font-size:9px;text-align:center;margin-bottom:4px;">💎 ПОКУПКИ ЗА TON — ДЕНЬГИ УХОДЯТ НА КОШЕЛЁК</div>';
-                for (var i = 0; i < tonShopItems.length; i++) {
-                    var item = tonShopItems[i];
-                    html += '<div class="item-row"><span>' + item.icon + ' ' + item.name + '</span><button class="ton-buy" data-id="' + item.id + '">' + item.tonCost + ' TON</button></div>';
+                var h = '<div style="color:#ffd700;font-size:10px;text-align:center;margin-bottom:6px;">💎 TON МАГАЗИН — ВСЁ ЗА КРИПТУ</div>';
+                for (var i=0;i<tonShopItems.length;i++) {
+                    var it=tonShopItems[i];
+                    h += '<div class="ton-shop-card">'+
+                        '<div class="shop-icon">'+it.icon+'</div>'+
+                        '<div class="shop-name">'+it.name+'</div>'+
+                        '<div class="shop-desc">'+it.desc+'</div>'+
+                        '<div class="shop-buff">⚡ '+it.buff+'</div>'+
+                        '<div class="shop-price" data-id="'+it.id+'">💎 '+it.price+' TON</div>'+
+                        '<div class="shop-rub">≈ ' + Math.floor(it.price*280) + ' ₽</div>'+
+                        '</div>';
                 }
-                html += '<div style="color:#555577;font-size:7px;text-align:center;margin-top:4px;">1 TON ≈ 200-350 ₽ | Продавец: ' + MERCHANT_WALLET.slice(0, 6) + '...' + MERCHANT_WALLET.slice(-4) + '</div>';
-                panel.innerHTML = html;
-
-                panel.querySelectorAll('button').forEach(function(btn) {
-                    btn.addEventListener('click', function() {
-                        var id = this.getAttribute('data-id');
-                        for (var j = 0; j < tonShopItems.length; j++) {
-                            var item = tonShopItems[j];
-                            if (item.id === id) {
-                                requestTonPayment(item.name, item.tonCost, function() {
-                                    if (item.stars) starCount += item.stars;
-                                    if (item.unlimited) unlimitedClicks = true;
-                                    if (item.vip) clickPower = clickPower * 3;
+                h += '<div style="color:#555577;font-size:7px;text-align:center;margin-top:4px;">TON уходит на: '+MERCHANT_WALLET.slice(0,6)+'...'+MERCHANT_WALLET.slice(-4)+'</div>';
+                document.getElementById('tonShop').innerHTML = h;
+                document.getElementById('tonShop').querySelectorAll('.shop-price').forEach(function(b){
+                    b.addEventListener('click', function(){
+                        var id=this.dataset.id;
+                        for (var j=0;j<tonShopItems.length;j++) {
+                            var it=tonShopItems[j];
+                            if (it.id===id) {
+                                requestTonPayment(it.name, it.price, it.rewardIcon, it.rewardText, it.rewardAmt, function(){
+                                    if (it.stars) starCount += (it.id==='pack50000'?55000:it.id==='pack200000'?225000:it.stars);
+                                    if (it.id==='unlimited') unlimitedClicks=true;
+                                    if (it.id==='vip') { vipActive=true; clickPower=Math.max(clickPower,1)*3; }
+                                    if (it.id==='double') doubleStars=true;
+                                    if (it.id==='critBoost') { critChance=50; critMultiplier=10; }
+                                    if (it.id==='auto5') autoClickerLevel=5;
                                 });
                                 return;
                             }
@@ -869,79 +676,40 @@
                 });
             }
 
-            // ==================== ТАБЛИЦА ЛИДЕРОВ ====================
             function getLeaderboard() {
-                var lb = [];
-                for (var i = 0; i < localStorage.length; i++) {
-                    var key = localStorage.key(i);
-                    if (key.indexOf('cosmic4_') === 0) {
-                        try {
-                            var data = JSON.parse(localStorage.getItem(key));
-                            var uid = key.replace('cosmic4_', '');
-                            lb.push({ id: uid, stars: data.starCount || 0, skin: data.activeSkin || 'default' });
-                        } catch (e) {}
+                var lb=[];
+                for (var i=0;i<localStorage.length;i++) {
+                    var k=localStorage.key(i);
+                    if (k.indexOf('cosmic5_')===0) {
+                        try { var d=JSON.parse(localStorage.getItem(k)); lb.push({id:k.replace('cosmic5_',''), stars:d.starCount||0, skin:d.activeSkin||'default'}); } catch(e) {}
                     }
                 }
-                lb.sort(function(a, b) { return b.stars - a.stars; });
-                return lb.slice(0, 50);
+                lb.sort(function(a,b){return b.stars-a.stars});
+                return lb.slice(0,50);
             }
 
             function updateLeaderboard() {
-                var lb = getLeaderboard();
-                var rank = '-';
-                for (var i = 0; i < lb.length; i++) {
-                    if (lb[i].id === userId) { rank = '#' + (i + 1); break; }
-                }
-                document.getElementById('rankDisplay').textContent = '🏆 ' + rank;
+                var lb=getLeaderboard(), rank='-';
+                for (var i=0;i<lb.length;i++) if (lb[i].id===userId) { rank='#'+(i+1); break; }
+                document.getElementById('rankDisplay').textContent = '🏆 '+rank;
             }
 
             function renderLeaderboard() {
-                var lb = getLeaderboard();
-                var panel = document.getElementById('leaderboard');
-                var html = '<div style="color:#8888ff;text-align:center;font-size:10px;margin-bottom:4px;">🏆 ТОП ИГРОКОВ</div>';
-                for (var i = 0; i < Math.min(lb.length, 20); i++) {
-                    var p = lb[i];
-                    var name = p.id === userId ? '★ ВЫ' : ('Игрок ' + p.id.slice(0, 6));
-                    var topClass = '';
-                    if (i === 0) topClass = ' top1';
-                    if (i === 1) topClass = ' top2';
-                    if (i === 2) topClass = ' top3';
-                    var skinIcon = '✦';
-                    for (var j = 0; j < skins.length; j++) {
-                        if (skins[j].id === p.skin) { skinIcon = skins[j].icon; break; }
-                    }
-                    html += '<div class="leaderboard-item' + topClass + '">' +
-                        '<span>' + (i + 1) + '. ' + skinIcon + ' ' + name + '</span>' +
-                        '<span>' + p.stars + ' ✦</span></div>';
+                var lb=getLeaderboard(), h='<div style="color:#8888ff;text-align:center;font-size:9px;margin-bottom:3px;">🏆 ТОП</div>';
+                for (var i=0;i<Math.min(lb.length,20);i++) {
+                    var p=lb[i], nm=p.id===userId?'★ ВЫ':('Игрок '+p.id.slice(0,6));
+                    var tc=''; if(i===0) tc=' top1'; if(i===1) tc=' top2'; if(i===2) tc=' top3';
+                    var si='✦'; for(var j=0;j<skins.length;j++) if(skins[j].id===p.skin) { si=skins[j].icon; break; }
+                    h += '<div class="leaderboard-item'+tc+'"><span>'+(i+1)+'. '+si+' '+nm+'</span><span>'+p.stars+' ✦</span></div>';
                 }
-                if (lb.length === 0) html += '<div style="color:#444466;text-align:center;">Нет игроков</div>';
-                panel.innerHTML = html;
+                document.getElementById('leaderboard').innerHTML = h;
             }
 
-            function renderAll() {
-                renderInventory();
-                renderSkins();
-                renderShop();
-                renderTonShop();
-                renderLeaderboard();
-            }
+            function renderAll() { renderInventory(); renderSkins(); renderShop(); renderTonShop(); renderLeaderboard(); }
 
-            // Сброс кликов
             var today = new Date().toDateString();
-            var savedDate = localStorage.getItem('cosmicDate4_' + userId);
-            if (savedDate !== today) {
-                clicksToday = 0;
-                localStorage.setItem('cosmicDate4_' + userId, today);
-            }
-            setInterval(function() {
-                var now = new Date().toDateString();
-                if (now !== today) {
-                    today = now;
-                    clicksToday = 0;
-                    localStorage.setItem('cosmicDate4_' + userId, today);
-                    updateUI();
-                }
-            }, 60000);
+            if (localStorage.getItem('cosmicDate5_'+userId)!==today) { clicksToday=0; localStorage.setItem('cosmicDate5_'+userId,today); }
+            setInterval(function(){ var n=new Date().toDateString(); if(n!==today){ today=n; clicksToday=0; localStorage.setItem('cosmicDate5_'+userId,today); updateUI(); } }, 60000);
 
             updateUI();
         })();
