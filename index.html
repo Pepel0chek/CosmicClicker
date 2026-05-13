@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>COSMIC CLICKER</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://unpkg.com/@tonconnect/ui@2.0.0/dist/tonconnect-ui.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #020010;
+            min-height: 100vh;
+            font-family: 'Courier New', monospace;
+            overflow-y: auto;
+            overflow-x: hidden;
+            user-select: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .game-wrapper {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 15px;
+            min-height: 100vh;
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .title {
+            font-size: 15px;
+            color: #8888cc;
+            margin-bottom: 10px;
+            letter-spacing: 3px;
+            text-shadow: 0 0 20px #4444aa;
+            text-align: center;
+        }
+
+        .click-area {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.05s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 10px 0;
+        }
+
+        .click-area:active {
+            transform: scale(0.9);
+        }
+
+        .click-area .glow {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(180, 160, 255, 0.5) 0%, rgba(80, 60, 200, 0.15) 50%, transparent 70%);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 0.6;
+            }
+            50% {
+                transform: scale(1.35);
+                opacity: 1;
+            }
+        }
+
+        .click-area .star {
+            font-size: 70px;
+            position: relative;
+            z-index: 2;
+            animation: spin 10s linear infinite;
+            text-shadow: 0 0 30px #aabbff, 0 0 60px #6666cc;
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .counter {
+            font-size: 30px;
+            color: #d0d0ff;
+            margin-top: 8px;
+            text-shadow: 0 0 30px #6666cc;
+            letter-spacing: 2px;
+        }
+
+        .per-click {
+            font-size: 11px;
+            color: #6666aa;
+            margin-top: 3px;
+            letter-spacing: 1px;
+        }
+
+        .info-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            font-size: 10px;
+            color: #8888aa;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .info-row span {
+            background: #0a0a1e;
+            padding: 5px 10px;
+            border-radius: 12px;
+            border: 1px solid #1a1a40;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 3px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .tab-btn {
+            background: #0a0a20;
+            color: #6666aa;
+            border: 1px solid #1a1a40;
+            padding: 7px 12px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 10px;
+            letter-spacing: 1px;
+            border-radius: 15px;
+        }
+
+        .tab-btn.active {
+            background: #1a1040;
+            color: #bbbbff;
+            border-color: #4444aa;
+            box-shadow: 0 0 12px #3333aa;
+        }
+
+        .panel {
+            background: #060615;
+            border: 1px solid #15153a;
+            width: 100%;
+            max-height: 180px;
+            overflow-y: auto;
+            padding: 8px;
+            margin-top: 6px;
+            display: none;
+            border-radius: 8px;
+        }
+
+        .panel.active {
+            display: block;
+        }
+
+        .shop-item {
+            background: #0a0515;
+            border: 1px solid #1a1030;
+            padding: 8px 10px;
+            margin-bottom: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #aa99cc;
+            font-size: 10px;
+            letter-spacing: 1px;
+            gap: 5px;
+            border-radius: 6px;
+            flex-wrap: wrap;
+        }
+
+        .shop-item button {
+            background: #200840;
+            color: #cc99ff;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 10px;
+            letter-spacing: 1px;
+            border-radius: 12px;
+            white-space: nowrap;
+        }
+
+        .shop-item button:disabled {
+            background: #0a0a15;
+            color: #333355;
+        }
+
+        .item {
+            background: #0a0a1e;
+            border: 1px solid #151535;
+            padding: 6px 10px;
+            margin-bottom: 3px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #9999cc;
+            font-size: 10px;
+            border-radius: 6px;
+        }
+
+        .ton-btn {
+            background: #0088cc;
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            letter-spacing: 1px;
+            border-radius: 20px;
+            margin-top: 10px;
+            width: 100%;
+            font-weight: bold;
+        }
+
+        .ton-btn.connect {
+            background: #0088cc;
+        }
+
+        .ton-btn.connected {
+            background: #00aa55;
+        }
+
+        .ton-btn.withdraw {
+            background: #1a1050;
+            border: 1px solid #4444aa;
+            color: #bbbbff;
+        }
+
+        .floating-text {
+            position: fixed;
+            pointer-events: none;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            color: #ccbbff;
+            z-index: 50;
+            animation: floatUp 0.8s ease-out forwards;
+            text-shadow: 0 0 10px #6666cc;
+        }
+
+        @keyframes floatUp {
+            0% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-60px);
+            }
+        }
+
+        .popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .popup.show {
+            display: flex;
+        }
+
+        .popup-card {
+            background: #08081a;
+            border: 2px solid #3333aa;
+            padding: 20px;
+            text-align: center;
+            color: #bbbbff;
+            width: 90%;
+            max-width: 340px;
+            border-radius: 12px;
+        }
+
+        .popup-card h3 {
+            margin-bottom: 12px;
+            color: #8888ff;
+            font-size: 16px;
+        }
+
+        .popup-card input {
+            background: #0a0a20;
+            border: 1px solid #3333aa;
+            color: #bbbbff;
+            padding: 8px;
+            width: 100%;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            text-align: center;
+            letter-spacing: 2px;
+            margin: 8px 0;
+            border-radius: 8px;
+        }
+
+        .popup-card button {
+            background: #1a1050;
+            color: #bbbbff;
+            border: none;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            letter-spacing: 1px;
+            margin: 4px;
+            border-radius: 15px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="starfield"></canvas>
+
+    <div class="game-wrapper">
+        <div class="title">✦ COSMIC CLICKER ✦</div>
+
+        <div class="click-area" id="clickArea">
+            <div class="glow"></div>
+            <div class="star">✦</div>
+        </div>
+
+        <div class="counter" id="counter">0 ✦</div>
+        <div class="per-click" id="perClick">+1 за клик</div>
+
+        <div class="info-row">
+            <span id="tonDisplay">TON: 0</span>
+            <span id="starDisplay">✦: 0</span>
+            <span id="limitDisplay">0/500</span>
+        </div>
+
+        <button class="ton-btn connect" id="tonConnectBtn">💎 Подключить TON</button>
+
+        <div class="tabs">
+            <button class="tab-btn active" id="invTab">🎒 Инвентарь</button>
+            <button class="tab-btn" id="shopTab">🛒 Магазин</button>
+            <button class="tab-btn" id="earnTab">💰 Вывод</button>
+        </div>
+
+        <div class="panel active" id="inventory"></div>
+        <div class="panel" id="shop"></div>
+        <div class="panel" id="earn"></div>
+    </div>
+
+    <div class="popup" id="withdrawPopup">
+        <div class="popup-card">
+            <h3>💎 Вывод TON</h3>
+            <p style="font-size:10px;color:#8888aa;">Доступно: <span id="withdrawAvailable">0</span> TON</p>
+            <p style="font-size:10px;color:#666688;margin:8px 0;">Минимум: 0.5 TON<br>Комиссия сети: ~0.05 TON</p>
+            <button id="confirmWithdrawBtn">Вывести на кошелёк</button>
+            <button id="cancelWithdrawBtn" style="background:#200820;">Отмена</button>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // ==================== TELEGRAM ====================
+            var tg = window.Telegram.WebApp;
+            tg.ready();
+            tg.expand();
+            tg.enableClosingConfirmation();
+
+            var userId = 'demo';
+            var username = 'Гость';
+            if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                userId = tg.initDataUnsafe.user.id.toString();
+                username = tg.initDataUnsafe.user.first_name || 'Гость';
+            }
+
+            // ==================== КОНФИГ ====================
+            var MERCHANT_WALLET = 'ТВОЙ_TON_АДРЕС_СЮДА'; // ← ЗАМЕНИ НА СВОЙ EQ... АДРЕС
+            var STAR_TO_TON = 10000;
+            var MIN_WITHDRAW = 0.5;
+
+            // ==================== TON CONNECT ====================
+            var tonConnectUI = null;
+            var connectedWallet = null;
+            var tonBalance = 0;
+
+            try {
+                tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+                    manifestUrl: 'https://raw.githubusercontent.com/ton-community/tutorials/main/03-wallet/step-3/tonconnect-manifest.json',
+                    buttonRootId: 'tonConnectBtn'
+                });
+
+                tonConnectUI.onStatusChange(function(wallet) {
+                    connectedWallet = wallet;
+                    if (wallet) {
+                        document.getElementById('tonConnectBtn').textContent = '✓ ' + wallet.account.address.slice(0, 8) + '...';
+                        document.getElementById('tonConnectBtn').classList.remove('connect');
+                        document.getElementById('tonConnectBtn').classList.add('connected');
+                    } else {
+                        document.getElementById('tonConnectBtn').textContent = '💎 Подключить TON';
+                        document.getElementById('tonConnectBtn').classList.add('connect');
+                        document.getElementById('tonConnectBtn').classList.remove('connected');
+                    }
+                    updateUI();
+                });
+            } catch (e) {
+                console.log('TON Connect не загружен, demo mode');
+            }
+
+            // ==================== ЗВЁЗДНОЕ ПОЛЕ ====================
+            var canvas = document.getElementById('starfield');
+            var ctx = canvas.getContext('2d');
+            var starsArray = [];
+
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            resizeCanvas();
+            window.addEventListener('resize', function() {
+                resizeCanvas();
+                createStars();
+            });
+
+            function createStars() {
+                starsArray = [];
+                var count = Math.floor((canvas.width * canvas.height) / 1500);
+                for (var i = 0; i < count; i++) {
+                    starsArray.push({
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height,
+                        r: Math.random() * 1.2 + 0.2,
+                        phase: Math.random() * Math.PI * 2,
+                        freq: Math.random() * 0.015 + 0.005,
+                        baseAlpha: Math.random() * 0.5 + 0.3
+                    });
+                }
+            }
+            createStars();
+
+            function drawStars() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                for (var i = 0; i < starsArray.length; i++) {
+                    var s = starsArray[i];
+                    s.phase += s.freq;
+                    var alpha = s.baseAlpha * (0.5 + 0.5 * Math.sin(s.phase));
+                    ctx.beginPath();
+                    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(200,200,255,' + alpha + ')';
+                    ctx.fill();
+                }
+                requestAnimationFrame(drawStars);
+            }
+            drawStars();
+
+            // ==================== ДАННЫЕ ====================
+            var starCount = 0;
+            var clickPower = 1;
+            var inventoryItems = [];
+            var clicksToday = 0;
+            var maxClicksToday = 500;
+
+            try {
+                var data = JSON.parse(localStorage.getItem('cosmic_' + userId) || '{}');
+                starCount = data.starCount || 0;
+                clickPower = data.clickPower || 1;
+                inventoryItems = data.inventoryItems || [];
+                clicksToday = data.clicksToday || 0;
+                maxClicksToday = data.maxClicksToday || 500;
+                tonBalance = data.tonBalance || 0;
+            } catch (e) {}
+
+            function save() {
+                try {
+                    localStorage.setItem('cosmic_' + userId, JSON.stringify({
+                        starCount: starCount,
+                        clickPower: clickPower,
+                        inventoryItems: inventoryItems,
+                        clicksToday: clicksToday,
+                        maxClicksToday: maxClicksToday,
+                        tonBalance: tonBalance
+                    }));
+                } catch (e) {}
+            }
+
+            function updateUI() {
+                document.getElementById('counter').textContent = starCount + ' ✦';
+                document.getElementById('perClick').textContent = '+' + clickPower + ' за клик';
+                document.getElementById('tonDisplay').textContent = 'TON: ' + tonBalance.toFixed(2);
+                document.getElementById('starDisplay').textContent = '✦: ' + starCount;
+                document.getElementById('limitDisplay').textContent = clicksToday + '/' + maxClicksToday;
+                renderInventory();
+                renderShop();
+                renderEarn();
+                save();
+            }
+
+            function spawnFloatingText(x, y, text) {
+                var el = document.createElement('div');
+                el.className = 'floating-text';
+                el.textContent = text;
+                el.style.left = (x - 20) + 'px';
+                el.style.top = (y - 20) + 'px';
+                document.body.appendChild(el);
+                setTimeout(function() { el.remove(); }, 800);
+            }
+
+            // ==================== КЛИК ====================
+            document.getElementById('clickArea').addEventListener('click', function(e) {
+                if (clicksToday >= maxClicksToday) {
+                    spawnFloatingText(e.clientX, e.clientY, 'ЛИМИТ');
+                    return;
+                }
+                starCount += clickPower;
+                clicksToday++;
+                spawnFloatingText(e.clientX, e.clientY, '+' + clickPower);
+                updateUI();
+            });
+
+            // ==================== ТАБЫ ====================
+            function switchTab(name) {
+                document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+                document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
+                document.getElementById(name + 'Tab').classList.add('active');
+                document.getElementById(name).classList.add('active');
+            }
+
+            document.getElementById('invTab').addEventListener('click', function() { switchTab('inventory'); });
+            document.getElementById('shopTab').addEventListener('click', function() { switchTab('shop'); });
+            document.getElementById('earnTab').addEventListener('click', function() { switchTab('earn'); });
+
+            // ==================== ИНВЕНТАРЬ ====================
+            function renderInventory() {
+                var inv = document.getElementById('inventory');
+                if (inventoryItems.length === 0) {
+                    inv.innerHTML =
+                        '<div class="item" style="justify-content:center;color:#444466;">пусто</div>';
+                    return;
+                }
+                var html = '';
+                for (var i = 0; i < inventoryItems.length; i++) {
+                    html += '<div class="item"><span>' + inventoryItems[i].icon + ' ' + inventoryItems[i]
+                        .name + '</span><span>' + inventoryItems[i].count + '</span></div>';
+                }
+                inv.innerHTML = html;
+            }
+
+            // ==================== МАГАЗИН ====================
+            var shopItems = [
+                { id: 'b2', name: 'x2 Буст', icon: '⚡', cost: 500, power: 2 },
+                { id: 'b5', name: 'x5 Буст', icon: '🔥', cost: 2000, power: 5 },
+                { id: 'b10', name: 'x10 Буст', icon: '💥', cost: 5000, power: 10 },
+                { id: 'l500', name: '+500 кликов', icon: '🔓', cost: 300, limit: 500 },
+                { id: 'l2000', name: '+2000 кликов', icon: '🔓', cost: 1000, limit: 2000 },
+            ];
+
+            function renderShop() {
+                var shop = document.getElementById('shop');
+                var html = '';
+                for (var i = 0; i < shopItems.length; i++) {
+                    var item = shopItems[i];
+                    var canBuy = starCount >= item.cost;
+                    html += '<div class="shop-item"><span>' + item.icon + ' ' + item.name +
+                        '</span><button data-id="' + item.id + '" ' + (canBuy ? '' : 'disabled') + '>' +
+                        item.cost + ' ✦</button></div>';
+                }
+                shop.innerHTML = html;
+
+                shop.querySelectorAll('button').forEach(function(btn) {
+                    btn.addEventListener('click', function() {
+                        var id = this.getAttribute('data-id');
+                        for (var j = 0; j < shopItems.length; j++) {
+                            if (shopItems[j].id === id) {
+                                var item = shopItems[j];
+                                if (starCount < item.cost) return;
+                                starCount -= item.cost;
+                                if (item.power) clickPower = item.power;
+                                if (item.limit) maxClicksToday += item.limit;
+                                var found = false;
+                                for (var k = 0; k < inventoryItems.length; k++) {
+                                    if (inventoryItems[k].id === id) {
+                                        inventoryItems[k].count++;
+                                        found = true;
+                                        break;
+                                    }
+                                }
+                                if (!found) inventoryItems.push({ id: id, name: item.name,
+                                    icon: item.icon, count: 1 });
+                                updateUI();
+                                break;
+                            }
+                        }
+                    });
+                });
+            }
+
+            // ==================== ВЫВОД ====================
+            function renderEarn() {
+                var earn = document.getElementById('earn');
+                var convertible = Math.floor(starCount / STAR_TO_TON * 100) / 100;
+                earn.innerHTML =
+                    '<div style="text-align:center;padding:10px;color:#8888aa;font-size:10px;">' +
+                    '<p style="color:#ffdd88;font-size:15px;">💎 ' + convertible.toFixed(2) +
+                    ' TON доступно</p>' +
+                    '<p>Курс: ' + STAR_TO_TON + ' ✦ = 1 TON</p>' +
+                    '<p>Баланс: ' + tonBalance.toFixed(2) + ' TON</p>' +
+                    '<button id="convertBtn" style="background:#200840;color:#cc99ff;border:none;padding:7px 14px;font-family:Courier New;margin:8px 0;border-radius:15px;cursor:pointer;font-size:10px;">Конвертировать ✦ → TON</button>' +
+                    '<button id="openWithdrawBtn" class="ton-btn withdraw" style="margin-top:4px;font-size:11px;padding:8px;">💳 Вывести TON</button>' +
+                    '<p style="font-size:8px;color:#444466;margin-top:5px;">1 TON ≈ 200-350 ₽</p>' +
+                    '</div>';
+
+                document.getElementById('convertBtn').addEventListener('click', function() {
+                    if (starCount >= STAR_TO_TON) {
+                        var tons = Math.floor(starCount / STAR_TO_TON);
+                        starCount -= tons * STAR_TO_TON;
+                        tonBalance += tons;
+                        updateUI();
+                        alert('Конвертировано: ' + (tons * STAR_TO_TON) + ' ✦ → ' + tons + ' TON');
+                    } else {
+                        alert('Нужно минимум ' + STAR_TO_TON + ' звёзд');
+                    }
+                });
+
+                document.getElementById('openWithdrawBtn').addEventListener('click', function() {
+                    if (tonBalance < MIN_WITHDRAW) {
+                        alert('Минимальный вывод: ' + MIN_WITHDRAW + ' TON');
+                        return;
+                    }
+                    document.getElementById('withdrawAvailable').textContent = tonBalance.toFixed(2);
+                    document.getElementById('withdrawPopup').classList.add('show');
+                });
+            }
+
+            // ==================== ВЫВОД TON ====================
+            document.getElementById('confirmWithdrawBtn').addEventListener('click', function() {
+                if (!connectedWallet) {
+                    alert('Сначала подключите кошелёк TON (кнопка сверху)');
+                    return;
+                }
+                if (tonBalance < MIN_WITHDRAW) {
+                    alert('Минимум ' + MIN_WITHDRAW + ' TON');
+                    return;
+                }
+
+                var amount = tonBalance;
+                var walletAddress = connectedWallet.account.address;
+
+                // В реальном проекте здесь:
+                // 1. Отправка транзакции через TON Connect SDK
+                // 2. Перевод TON с твоего кошелька на кошелёк пользователя
+                // 3. Подтверждение через блокчейн
+
+                alert('✅ Заявка создана!\n\n' +
+                    'Сумма: ' + amount.toFixed(2) + ' TON\n' +
+                    'Кошелёк: ' + walletAddress.slice(0, 12) + '...\n\n' +
+                    'Обработка до 24 часов.');
+
+                tonBalance = 0;
+                document.getElementById('withdrawPopup').classList.remove('show');
+                updateUI();
+            });
+
+            document.getElementById('cancelWithdrawBtn').addEventListener('click', function() {
+                document.getElementById('withdrawPopup').classList.remove('show');
+            });
+
+            // ==================== СБРОС КЛИКОВ ====================
+            var today = new Date().toDateString();
+            var savedDate = localStorage.getItem('cosmicDate_' + userId);
+            if (savedDate !== today) {
+                clicksToday = 0;
+                localStorage.setItem('cosmicDate_' + userId, today);
+            }
+
+            setInterval(function() {
+                var now = new Date().toDateString();
+                if (now !== today) {
+                    today = now;
+                    clicksToday = 0;
+                    localStorage.setItem('cosmicDate_' + userId, today);
+                    updateUI();
+                }
+            }, 60000);
+
+            updateUI();
+        })();
+    </script>
+</body>
+</html>
