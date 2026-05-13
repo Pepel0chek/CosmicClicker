@@ -5,34 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>COSMIC CLICKER</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://unpkg.com/@tonconnect/ui@2.0.0/dist/tonconnect-ui.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             background: #020010;
             min-height: 100vh;
             font-family: 'Courier New', monospace;
-            overflow-y: auto;
             overflow-x: hidden;
             user-select: none;
+            -webkit-tap-highlight-color: transparent;
             display: flex;
             justify-content: center;
-            align-items: center;
-            -webkit-tap-highlight-color: transparent;
         }
 
-        canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 0;
-            pointer-events: none;
-        }
+        canvas { position: fixed; top: 0; left: 0; z-index: 0; pointer-events: none; }
 
         .game-wrapper {
             position: relative;
@@ -40,310 +27,140 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            padding: 20px 15px;
-            min-height: 100vh;
+            padding: 12px;
             width: 100%;
             max-width: 420px;
+            min-height: 100vh;
         }
 
-        .title {
-            font-size: 15px;
-            color: #8888cc;
-            margin-bottom: 10px;
-            letter-spacing: 3px;
-            text-shadow: 0 0 20px #4444aa;
-            text-align: center;
-        }
+        .title { font-size: 14px; color: #8888cc; letter-spacing: 3px; text-shadow: 0 0 20px #4444aa; margin-bottom: 6px; }
 
         .click-area {
-            width: 180px;
-            height: 180px;
-            border-radius: 50%;
-            cursor: pointer;
-            position: relative;
-            transition: transform 0.05s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 10px 0;
+            width: 150px; height: 150px; border-radius: 50%; cursor: pointer;
+            position: relative; transition: transform 0.05s;
+            display: flex; align-items: center; justify-content: center; margin: 4px 0;
         }
-
-        .click-area:active {
-            transform: scale(0.9);
-        }
+        .click-area:active { transform: scale(0.88); }
 
         .click-area .glow {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(180, 160, 255, 0.5) 0%, rgba(80, 60, 200, 0.15) 50%, transparent 70%);
+            position: absolute; width: 100%; height: 100%; border-radius: 50%;
             animation: pulse 2s ease-in-out infinite;
         }
-
         @keyframes pulse {
-            0%,
-            100% {
-                transform: scale(1);
-                opacity: 0.6;
-            }
-            50% {
-                transform: scale(1.35);
-                opacity: 1;
-            }
+            0%, 100% { transform: scale(1); opacity: 0.6; }
+            50% { transform: scale(1.35); opacity: 1; }
         }
 
-        .click-area .star {
-            font-size: 70px;
-            position: relative;
-            z-index: 2;
-            animation: spin 10s linear infinite;
+        .click-area .click-skin {
+            font-size: 65px; position: relative; z-index: 2;
+            animation: spin 12s linear infinite;
             text-shadow: 0 0 30px #aabbff, 0 0 60px #6666cc;
         }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-        @keyframes spin {
-            from {
-                transform: rotate(0deg);
-            }
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        .counter {
-            font-size: 30px;
-            color: #d0d0ff;
-            margin-top: 8px;
-            text-shadow: 0 0 30px #6666cc;
-            letter-spacing: 2px;
-        }
-
-        .per-click {
-            font-size: 11px;
-            color: #6666aa;
-            margin-top: 3px;
-            letter-spacing: 1px;
-        }
+        .counter { font-size: 26px; color: #d0d0ff; margin-top: 4px; text-shadow: 0 0 25px #6666cc; letter-spacing: 2px; }
+        .per-click { font-size: 9px; color: #6666aa; letter-spacing: 1px; }
 
         .info-row {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-            font-size: 10px;
-            color: #8888aa;
-            flex-wrap: wrap;
-            justify-content: center;
+            display: flex; gap: 6px; margin-top: 6px; font-size: 9px;
+            color: #8888aa; flex-wrap: wrap; justify-content: center;
+        }
+        .info-row span { background: #0a0a1e; padding: 3px 8px; border-radius: 8px; border: 1px solid #1a1a40; }
+
+        .bonus-bar {
+            width: 100%; background: #0a0a1e; border: 1px solid #1a1a40;
+            padding: 6px 10px; border-radius: 10px; margin-top: 6px;
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 9px; color: #ffdd88;
+        }
+        .bonus-bar .streak { color: #ffaa00; font-weight: bold; }
+
+        .meteor-alert {
+            position: fixed; top: 10%; left: 50%; transform: translateX(-50%);
+            background: #ff6600; color: #fff; padding: 10px 20px;
+            border-radius: 20px; font-family: 'Courier New', monospace;
+            font-size: 14px; font-weight: bold; z-index: 200;
+            display: none; animation: meteorPulse 0.5s ease-in-out infinite;
+            text-shadow: 0 0 10px #ffaa00;
+        }
+        @keyframes meteorPulse {
+            0%, 100% { box-shadow: 0 0 20px #ff6600; }
+            50% { box-shadow: 0 0 50px #ffaa00, 0 0 80px #ff4400; }
         }
 
-        .info-row span {
-            background: #0a0a1e;
-            padding: 5px 10px;
-            border-radius: 12px;
-            border: 1px solid #1a1a40;
+        .floating-bonus {
+            position: fixed; font-size: 40px; z-index: 150;
+            cursor: pointer; animation: bonusFloat 4s ease-in-out infinite;
+            filter: drop-shadow(0 0 15px #ffdd00);
+            pointer-events: auto;
+        }
+        @keyframes bonusFloat {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            25% { transform: translateY(-30px) rotate(90deg); }
+            50% { transform: translateY(0) rotate(180deg); }
+            75% { transform: translateY(-30px) rotate(270deg); }
         }
 
         .tabs {
-            display: flex;
-            gap: 3px;
-            margin-top: 15px;
-            flex-wrap: wrap;
-            justify-content: center;
+            display: flex; gap: 2px; margin-top: 8px; flex-wrap: wrap; justify-content: center;
         }
-
         .tab-btn {
-            background: #0a0a20;
-            color: #6666aa;
-            border: 1px solid #1a1a40;
-            padding: 7px 12px;
-            cursor: pointer;
-            font-family: 'Courier New', monospace;
-            font-size: 10px;
-            letter-spacing: 1px;
-            border-radius: 15px;
+            background: #0a0a20; color: #6666aa; border: 1px solid #1a1a40;
+            padding: 5px 8px; cursor: pointer; font-family: 'Courier New', monospace;
+            font-size: 8px; letter-spacing: 1px; border-radius: 10px;
         }
-
         .tab-btn.active {
-            background: #1a1040;
-            color: #bbbbff;
-            border-color: #4444aa;
-            box-shadow: 0 0 12px #3333aa;
+            background: #1a1040; color: #bbbbff; border-color: #4444aa;
+            box-shadow: 0 0 10px #3333aa;
         }
 
         .panel {
-            background: #060615;
-            border: 1px solid #15153a;
-            width: 100%;
-            max-height: 180px;
-            overflow-y: auto;
-            padding: 8px;
-            margin-top: 6px;
-            display: none;
-            border-radius: 8px;
+            background: #060615; border: 1px solid #15153a;
+            width: 100%; max-height: 180px; overflow-y: auto;
+            padding: 6px; margin-top: 4px; display: none; border-radius: 6px;
         }
+        .panel.active { display: block; }
 
-        .panel.active {
-            display: block;
+        .item-row {
+            background: #0a0a1e; border: 1px solid #151535;
+            padding: 6px 8px; margin-bottom: 3px; display: flex;
+            justify-content: space-between; align-items: center;
+            color: #9999cc; font-size: 9px; border-radius: 4px; gap: 4px;
         }
+        .item-row button {
+            background: #200840; color: #cc99ff; border: none;
+            padding: 3px 8px; cursor: pointer; font-family: 'Courier New', monospace;
+            font-size: 8px; border-radius: 8px; white-space: nowrap;
+        }
+        .item-row button.owned { background: #003300; color: #88ff88; }
+        .item-row button.active { background: #ffaa00; color: #000; }
+        .item-row button:disabled { opacity: 0.4; }
 
-        .shop-item {
-            background: #0a0515;
-            border: 1px solid #1a1030;
-            padding: 8px 10px;
-            margin-bottom: 4px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: #aa99cc;
-            font-size: 10px;
-            letter-spacing: 1px;
-            gap: 5px;
-            border-radius: 6px;
-            flex-wrap: wrap;
+        .leaderboard-item {
+            background: #0a0a1e; border: 1px solid #151535;
+            padding: 5px 6px; margin-bottom: 2px; display: flex;
+            justify-content: space-between; align-items: center;
+            color: #9999cc; font-size: 9px; border-radius: 3px;
         }
-
-        .shop-item button {
-            background: #200840;
-            color: #cc99ff;
-            border: none;
-            padding: 5px 10px;
-            cursor: pointer;
-            font-family: 'Courier New', monospace;
-            font-size: 10px;
-            letter-spacing: 1px;
-            border-radius: 12px;
-            white-space: nowrap;
-        }
-
-        .shop-item button:disabled {
-            background: #0a0a15;
-            color: #333355;
-        }
-
-        .item {
-            background: #0a0a1e;
-            border: 1px solid #151535;
-            padding: 6px 10px;
-            margin-bottom: 3px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: #9999cc;
-            font-size: 10px;
-            border-radius: 6px;
-        }
-
-        .ton-btn {
-            background: #0088cc;
-            color: #ffffff;
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            letter-spacing: 1px;
-            border-radius: 20px;
-            margin-top: 10px;
-            width: 100%;
-            font-weight: bold;
-        }
-
-        .ton-btn.connect {
-            background: #0088cc;
-        }
-
-        .ton-btn.connected {
-            background: #00aa55;
-        }
-
-        .ton-btn.withdraw {
-            background: #1a1050;
-            border: 1px solid #4444aa;
-            color: #bbbbff;
-        }
+        .leaderboard-item.top1 { border-color: #ffd700; background: #1a1a00; }
+        .leaderboard-item.top2 { border-color: #c0c0c0; background: #1a1a1a; }
+        .leaderboard-item.top3 { border-color: #cd7f32; background: #1a0a00; }
 
         .floating-text {
-            position: fixed;
-            pointer-events: none;
-            font-family: 'Courier New', monospace;
-            font-size: 16px;
-            color: #ccbbff;
-            z-index: 50;
+            position: fixed; pointer-events: none; font-family: 'Courier New', monospace;
+            font-size: 14px; color: #ccbbff; z-index: 50;
             animation: floatUp 0.8s ease-out forwards;
             text-shadow: 0 0 10px #6666cc;
         }
-
         @keyframes floatUp {
-            0% {
-                opacity: 1;
-                transform: translateY(0);
-            }
-            100% {
-                opacity: 0;
-                transform: translateY(-60px);
-            }
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-60px); }
         }
 
-        .popup {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            z-index: 100;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .popup.show {
-            display: flex;
-        }
-
-        .popup-card {
-            background: #08081a;
-            border: 2px solid #3333aa;
-            padding: 20px;
-            text-align: center;
-            color: #bbbbff;
-            width: 90%;
-            max-width: 340px;
-            border-radius: 12px;
-        }
-
-        .popup-card h3 {
-            margin-bottom: 12px;
-            color: #8888ff;
-            font-size: 16px;
-        }
-
-        .popup-card input {
-            background: #0a0a20;
-            border: 1px solid #3333aa;
-            color: #bbbbff;
-            padding: 8px;
-            width: 100%;
-            font-family: 'Courier New', monospace;
-            font-size: 13px;
-            text-align: center;
-            letter-spacing: 2px;
-            margin: 8px 0;
-            border-radius: 8px;
-        }
-
-        .popup-card button {
-            background: #1a1050;
-            color: #bbbbff;
-            border: none;
-            padding: 8px 16px;
-            cursor: pointer;
-            font-family: 'Courier New', monospace;
-            font-size: 11px;
-            letter-spacing: 1px;
-            margin: 4px;
-            border-radius: 15px;
-            width: 100%;
+        .crit-text {
+            color: #ffdd00 !important;
+            font-size: 20px !important;
+            text-shadow: 0 0 20px #ffaa00 !important;
         }
     </style>
 </head>
@@ -354,49 +171,45 @@
         <div class="title">✦ COSMIC CLICKER ✦</div>
 
         <div class="click-area" id="clickArea">
-            <div class="glow"></div>
-            <div class="star">✦</div>
+            <div class="glow" id="clickGlow"></div>
+            <div class="click-skin" id="clickSkin">✦</div>
         </div>
 
         <div class="counter" id="counter">0 ✦</div>
         <div class="per-click" id="perClick">+1 за клик</div>
 
         <div class="info-row">
-            <span id="tonDisplay">TON: 0</span>
+            <span id="rankDisplay">🏆 #-</span>
             <span id="starDisplay">✦: 0</span>
             <span id="limitDisplay">0/500</span>
         </div>
 
-        <button class="ton-btn connect" id="tonConnectBtn">💎 Подключить TON</button>
+        <div class="bonus-bar" id="bonusBar">
+            <span>🔥 Бонус дня:</span>
+            <span class="streak" id="streakDisplay">День 1</span>
+            <button id="claimBonusBtn" style="background:#ff8800;color:#000;border:none;padding:3px 8px;font-family:'Courier New',monospace;font-size:8px;border-radius:8px;cursor:pointer;">Забрать</button>
+        </div>
 
         <div class="tabs">
-            <button class="tab-btn active" id="invTab">🎒 Инвентарь</button>
-            <button class="tab-btn" id="shopTab">🛒 Магазин</button>
-            <button class="tab-btn" id="earnTab">💰 Вывод</button>
+            <button class="tab-btn active" id="invTab">🎒 Моё</button>
+            <button class="tab-btn" id="skinsTab">🎨 Скины</button>
+            <button class="tab-btn" id="shopTab">🛒 Буст</button>
+            <button class="tab-btn" id="lbTab">🏆 Топ</button>
         </div>
 
         <div class="panel active" id="inventory"></div>
+        <div class="panel" id="skins"></div>
         <div class="panel" id="shop"></div>
-        <div class="panel" id="earn"></div>
+        <div class="panel" id="leaderboard"></div>
     </div>
 
-    <div class="popup" id="withdrawPopup">
-        <div class="popup-card">
-            <h3>💎 Вывод TON</h3>
-            <p style="font-size:10px;color:#8888aa;">Доступно: <span id="withdrawAvailable">0</span> TON</p>
-            <p style="font-size:10px;color:#666688;margin:8px 0;">Минимум: 0.5 TON<br>Комиссия сети: ~0.05 TON</p>
-            <button id="confirmWithdrawBtn">Вывести на кошелёк</button>
-            <button id="cancelWithdrawBtn" style="background:#200820;">Отмена</button>
-        </div>
-    </div>
+    <div class="meteor-alert" id="meteorAlert">☄️ ЗВЁЗДНЫЙ ДОЖДЬ! x5 КЛИКИ! ☄️</div>
 
     <script>
         (function() {
-            // ==================== TELEGRAM ====================
             var tg = window.Telegram.WebApp;
             tg.ready();
             tg.expand();
-            tg.enableClosingConfirmation();
 
             var userId = 'demo';
             var username = 'Гость';
@@ -405,58 +218,18 @@
                 username = tg.initDataUnsafe.user.first_name || 'Гость';
             }
 
-            // ==================== КОНФИГ ====================
-            var MERCHANT_WALLET = 'UQB1zQdsU4sS-Fpuys03gXX5zccrRAC18Mz9flzZgRcTq9wv'; // ← ЗАМЕНИ НА СВОЙ EQ... АДРЕС
-            var STAR_TO_TON = 10000;
-            var MIN_WITHDRAW = 0.5;
-
-            // ==================== TON CONNECT ====================
-            var tonConnectUI = null;
-            var connectedWallet = null;
-            var tonBalance = 0;
-
-            try {
-                tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-                    manifestUrl: 'https://raw.githubusercontent.com/ton-community/tutorials/main/03-wallet/step-3/tonconnect-manifest.json',
-                    buttonRootId: 'tonConnectBtn'
-                });
-
-                tonConnectUI.onStatusChange(function(wallet) {
-                    connectedWallet = wallet;
-                    if (wallet) {
-                        document.getElementById('tonConnectBtn').textContent = '✓ ' + wallet.account.address.slice(0, 8) + '...';
-                        document.getElementById('tonConnectBtn').classList.remove('connect');
-                        document.getElementById('tonConnectBtn').classList.add('connected');
-                    } else {
-                        document.getElementById('tonConnectBtn').textContent = '💎 Подключить TON';
-                        document.getElementById('tonConnectBtn').classList.add('connect');
-                        document.getElementById('tonConnectBtn').classList.remove('connected');
-                    }
-                    updateUI();
-                });
-            } catch (e) {
-                console.log('TON Connect не загружен, demo mode');
-            }
-
-            // ==================== ЗВЁЗДНОЕ ПОЛЕ ====================
+            // Звёздное поле
             var canvas = document.getElementById('starfield');
             var ctx = canvas.getContext('2d');
             var starsArray = [];
 
-            function resizeCanvas() {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
-            }
+            function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
             resizeCanvas();
-            window.addEventListener('resize', function() {
-                resizeCanvas();
-                createStars();
-            });
+            window.addEventListener('resize', function() { resizeCanvas(); createStars(); });
 
             function createStars() {
                 starsArray = [];
-                var count = Math.floor((canvas.width * canvas.height) / 1500);
-                for (var i = 0; i < count; i++) {
+                for (var i = 0; i < 200; i++) {
                     starsArray.push({
                         x: Math.random() * canvas.width,
                         y: Math.random() * canvas.height,
@@ -469,8 +242,25 @@
             }
             createStars();
 
+            // Метеоры для дождя
+            var meteors = [];
+            var meteorShowerActive = false;
+
+            function spawnMeteor() {
+                return {
+                    x: Math.random() * canvas.width,
+                    y: -20,
+                    speed: Math.random() * 8 + 5,
+                    size: Math.random() * 3 + 1,
+                    opacity: 1,
+                    trail: []
+                };
+            }
+
             function drawStars() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                // Фон
                 for (var i = 0; i < starsArray.length; i++) {
                     var s = starsArray[i];
                     s.phase += s.freq;
@@ -480,71 +270,320 @@
                     ctx.fillStyle = 'rgba(200,200,255,' + alpha + ')';
                     ctx.fill();
                 }
+
+                // Метеоры
+                if (meteorShowerActive) {
+                    if (Math.random() < 0.4) meteors.push(spawnMeteor());
+                    for (var j = meteors.length - 1; j >= 0; j--) {
+                        var m = meteors[j];
+                        m.trail.push({ x: m.x, y: m.y });
+                        if (m.trail.length > 15) m.trail.shift();
+                        m.x += m.speed * 0.5;
+                        m.y += m.speed * 2;
+                        m.opacity -= 0.01;
+                        if (m.opacity <= 0 || m.y > canvas.height + 50) {
+                            meteors.splice(j, 1);
+                            continue;
+                        }
+                        // Шлейф
+                        for (var k = 0; k < m.trail.length; k++) {
+                            var t = m.trail[k];
+                            var ta = (k / m.trail.length) * m.opacity * 0.5;
+                            ctx.beginPath();
+                            ctx.arc(t.x, t.y, m.size * 0.5, 0, Math.PI * 2);
+                            ctx.fillStyle = 'rgba(255,150,50,' + ta + ')';
+                            ctx.fill();
+                        }
+                        ctx.beginPath();
+                        ctx.arc(m.x, m.y, m.size, 0, Math.PI * 2);
+                        ctx.fillStyle = 'rgba(255,200,100,' + m.opacity + ')';
+                        ctx.fill();
+                    }
+                }
+
                 requestAnimationFrame(drawStars);
             }
             drawStars();
 
-            // ==================== ДАННЫЕ ====================
+            // Скины
+            var skins = [
+                { id: 'default', name: 'Звезда', icon: '✦', cost: 0, glow: 'rgba(180,160,255,0.5) 0%, rgba(80,60,200,0.15) 50%, transparent 70%', color: '#aabbff' },
+                { id: 'pulsar', name: 'Пульсар', icon: '✧', cost: 1000, glow: 'rgba(100,255,200,0.5) 0%, rgba(0,200,100,0.15) 50%, transparent 70%', color: '#88ffcc' },
+                { id: 'nova', name: 'Сверхновая', icon: '✶', cost: 5000, glow: 'rgba(255,100,50,0.6) 0%, rgba(255,50,0,0.2) 50%, transparent 70%', color: '#ff6644' },
+                { id: 'galaxy', name: 'Галактика', icon: '✷', cost: 10000, glow: 'rgba(200,100,255,0.6) 0%, rgba(150,0,255,0.2) 50%, transparent 70%', color: '#cc88ff' },
+                { id: 'void', name: 'Пустота', icon: '✬', cost: 25000, glow: 'rgba(0,0,0,0.8) 0%, rgba(50,0,100,0.3) 50%, transparent 70%', color: '#000000' },
+                { id: 'sun', name: 'Солнце', icon: '✺', cost: 50000, glow: 'rgba(255,255,0,0.7) 0%, rgba(255,150,0,0.3) 50%, transparent 70%', color: '#ffdd00' },
+                { id: 'quasar', name: 'Квазар', icon: '≛', cost: 100000, glow: 'rgba(0,200,255,0.8) 0%, rgba(0,100,255,0.3) 50%, transparent 70%', color: '#00ccff' },
+                { id: 'cosmic', name: 'Космос', icon: '✹', cost: 250000, glow: 'rgba(255,0,255,0.6) 0%, rgba(100,0,200,0.3) 50%, transparent 70%', color: '#ff00ff' },
+                { id: 'nebula', name: 'Туманность', icon: '✫', cost: 500000, glow: 'rgba(255,100,200,0.7) 0%, rgba(200,50,150,0.3) 50%, transparent 70%', color: '#ff88cc' },
+                { id: 'god', name: 'Божество', icon: '⚝', cost: 1000000, glow: 'rgba(255,255,255,1) 0%, rgba(200,200,255,0.5) 50%, transparent 70%', color: '#ffffff' }
+            ];
+
+            // Данные игрока
             var starCount = 0;
             var clickPower = 1;
+            var activeSkin = 'default';
+            var ownedSkins = ['default'];
             var inventoryItems = [];
             var clicksToday = 0;
             var maxClicksToday = 500;
+            var dailyStreak = 0;
+            var lastClaimDate = '';
+            var critChance = 10;
+            var critMultiplier = 3;
+            var autoClickerLevel = 0;
+            var autoClickerInterval = null;
 
+            // Загрузка
             try {
-                var data = JSON.parse(localStorage.getItem('cosmic_' + userId) || '{}');
+                var data = JSON.parse(localStorage.getItem('cosmic3_' + userId) || '{}');
                 starCount = data.starCount || 0;
                 clickPower = data.clickPower || 1;
+                activeSkin = data.activeSkin || 'default';
+                ownedSkins = data.ownedSkins || ['default'];
                 inventoryItems = data.inventoryItems || [];
                 clicksToday = data.clicksToday || 0;
                 maxClicksToday = data.maxClicksToday || 500;
-                tonBalance = data.tonBalance || 0;
+                dailyStreak = data.dailyStreak || 0;
+                lastClaimDate = data.lastClaimDate || '';
+                critChance = data.critChance || 10;
+                critMultiplier = data.critMultiplier || 3;
+                autoClickerLevel = data.autoClickerLevel || 0;
             } catch (e) {}
 
             function save() {
                 try {
-                    localStorage.setItem('cosmic_' + userId, JSON.stringify({
-                        starCount: starCount,
-                        clickPower: clickPower,
-                        inventoryItems: inventoryItems,
-                        clicksToday: clicksToday,
-                        maxClicksToday: maxClicksToday,
-                        tonBalance: tonBalance
+                    localStorage.setItem('cosmic3_' + userId, JSON.stringify({
+                        starCount: starCount, clickPower: clickPower,
+                        activeSkin: activeSkin, ownedSkins: ownedSkins,
+                        inventoryItems: inventoryItems, clicksToday: clicksToday,
+                        maxClicksToday: maxClicksToday, dailyStreak: dailyStreak,
+                        lastClaimDate: lastClaimDate, critChance: critChance,
+                        critMultiplier: critMultiplier, autoClickerLevel: autoClickerLevel
                     }));
                 } catch (e) {}
+                updateLeaderboard();
+            }
+
+            function getActiveSkinData() {
+                for (var i = 0; i < skins.length; i++) {
+                    if (skins[i].id === activeSkin) return skins[i];
+                }
+                return skins[0];
+            }
+
+            function updateClickArea() {
+                var skin = getActiveSkinData();
+                document.getElementById('clickSkin').textContent = skin.icon;
+                document.getElementById('clickSkin').style.textShadow = '0 0 30px ' + skin.color + ', 0 0 60px ' + skin.color;
+                document.getElementById('clickGlow').style.background = 'radial-gradient(circle, ' + skin.glow + ')';
             }
 
             function updateUI() {
                 document.getElementById('counter').textContent = starCount + ' ✦';
-                document.getElementById('perClick').textContent = '+' + clickPower + ' за клик';
-                document.getElementById('tonDisplay').textContent = 'TON: ' + tonBalance.toFixed(2);
+                document.getElementById('perClick').textContent = '+' + clickPower + ' за клик | Крит: ' + critChance + '% x' + critMultiplier;
                 document.getElementById('starDisplay').textContent = '✦: ' + starCount;
                 document.getElementById('limitDisplay').textContent = clicksToday + '/' + maxClicksToday;
-                renderInventory();
-                renderShop();
-                renderEarn();
+                updateClickArea();
+                updateBonusBar();
+                renderAll();
+                updateAutoClicker();
                 save();
             }
 
-            function spawnFloatingText(x, y, text) {
+            function spawnFloatingText(x, y, text, isCrit) {
                 var el = document.createElement('div');
-                el.className = 'floating-text';
+                el.className = 'floating-text' + (isCrit ? ' crit-text' : '');
                 el.textContent = text;
-                el.style.left = (x - 20) + 'px';
-                el.style.top = (y - 20) + 'px';
+                el.style.left = Math.max(0, x - 25) + 'px';
+                el.style.top = Math.max(0, y - 20) + 'px';
                 document.body.appendChild(el);
                 setTimeout(function() { el.remove(); }, 800);
+            }
+
+            // ==================== ЗАЩИТА ОТ АВТОКЛИКЕРОВ ====================
+            var clickTimestamps = [];
+            var CLICK_WINDOW = 1000;
+            var MAX_CLICKS_PER_WINDOW = 15;
+            var BLOCK_DURATION = 5000;
+            var clickBlockedUntil = 0;
+            var warningCount = 0;
+            var MAX_WARNINGS = 3;
+
+            function isAutoClickerDetected() {
+                var now = Date.now();
+
+                if (now < clickBlockedUntil) return true;
+
+                clickTimestamps.push(now);
+                while (clickTimestamps.length > 0 && clickTimestamps[0] < now - CLICK_WINDOW) {
+                    clickTimestamps.shift();
+                }
+
+                if (clickTimestamps.length > MAX_CLICKS_PER_WINDOW) {
+                    warningCount++;
+                    clickBlockedUntil = now + BLOCK_DURATION * warningCount;
+                    clickTimestamps = [];
+                    return true;
+                }
+
+                // Проверка на роботный паттерн (одинаковые интервалы)
+                if (clickTimestamps.length >= 5) {
+                    var intervals = [];
+                    for (var i = 1; i < clickTimestamps.length; i++) {
+                        intervals.push(clickTimestamps[i] - clickTimestamps[i - 1]);
+                    }
+                    var allSame = true;
+                    for (var j = 1; j < intervals.length; j++) {
+                        if (Math.abs(intervals[j] - intervals[0]) > 5) { allSame = false; break; }
+                    }
+                    if (allSame && intervals[0] < 100) {
+                        warningCount++;
+                        clickBlockedUntil = now + BLOCK_DURATION * warningCount;
+                        clickTimestamps = [];
+                        return true;
+                    }
+                }
+
+                return false;
             }
 
             // ==================== КЛИК ====================
             document.getElementById('clickArea').addEventListener('click', function(e) {
                 if (clicksToday >= maxClicksToday) {
-                    spawnFloatingText(e.clientX, e.clientY, 'ЛИМИТ');
+                    spawnFloatingText(e.clientX, e.clientY, 'ЛИМИТ', false);
                     return;
                 }
-                starCount += clickPower;
+
+                if (isAutoClickerDetected()) {
+                    spawnFloatingText(e.clientX, e.clientY, 'АВТОКЛИК!', false);
+                    updateUI();
+                    return;
+                }
+
+                var gained = clickPower;
+                var isCrit = false;
+
+                // Критический удар
+                if (Math.random() * 100 < critChance) {
+                    gained = Math.floor(clickPower * critMultiplier);
+                    isCrit = true;
+                }
+
+                // Звёздный дождь x5
+                if (meteorShowerActive) {
+                    gained = gained * 5;
+                    isCrit = true;
+                }
+
+                starCount += gained;
                 clicksToday++;
-                spawnFloatingText(e.clientX, e.clientY, '+' + clickPower);
+                spawnFloatingText(e.clientX, e.clientY, '+' + gained + (isCrit ? ' ⚡' : ''), isCrit);
+                updateUI();
+            });
+
+            // ==================== АВТОКЛИКЕР (ПОКУПНОЙ) ====================
+            function updateAutoClicker() {
+                if (autoClickerInterval) clearInterval(autoClickerInterval);
+                if (autoClickerLevel > 0) {
+                    var speeds = [0, 2000, 1500, 1000, 600, 300];
+                    var clicks = [0, 1, 1, 2, 3, 5];
+                    var speed = speeds[autoClickerLevel] || 2000;
+                    var perTick = clicks[autoClickerLevel] || 1;
+                    autoClickerInterval = setInterval(function() {
+                        if (clicksToday < maxClicksToday) {
+                            var gained = clickPower * perTick;
+                            if (meteorShowerActive) gained = gained * 5;
+                            starCount += gained;
+                            clicksToday += perTick;
+                            updateUI();
+                        }
+                    }, speed);
+                }
+            }
+
+            // ==================== ЗВЁЗДНЫЙ ДОЖДЬ ====================
+            function triggerMeteorShower() {
+                meteorShowerActive = true;
+                meteors = [];
+                document.getElementById('meteorAlert').style.display = 'block';
+                document.body.style.background = '#0a0015';
+                setTimeout(function() {
+                    meteorShowerActive = false;
+                    document.getElementById('meteorAlert').style.display = 'none';
+                    document.body.style.background = '#020010';
+                }, 10000);
+            }
+
+            setInterval(function() {
+                if (!meteorShowerActive && Math.random() < 0.3) {
+                    triggerMeteorShower();
+                }
+            }, 300000);
+
+            // ==================== ПАРЯЩИЕ БОНУСЫ ====================
+            function spawnFloatingBonus() {
+                var el = document.createElement('div');
+                el.className = 'floating-bonus';
+                el.textContent = '💫';
+                el.style.left = Math.random() * (window.innerWidth - 60) + 'px';
+                el.style.top = Math.random() * (window.innerHeight - 200) + 100 + 'px';
+                el.style.pointerEvents = 'auto';
+                document.body.appendChild(el);
+
+                var bonusAmount = Math.floor(Math.random() * 900) + 100;
+
+                el.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    starCount += bonusAmount;
+                    spawnFloatingText(e.clientX, e.clientY, '+' + bonusAmount + ' БОНУС', true);
+                    el.remove();
+                    updateUI();
+                });
+
+                setTimeout(function() {
+                    if (el.parentNode) el.remove();
+                }, 8000);
+            }
+
+            setInterval(function() {
+                if (Math.random() < 0.5) spawnFloatingBonus();
+            }, 45000);
+
+            // ==================== ЕЖЕДНЕВНЫЙ БОНУС ====================
+            function updateBonusBar() {
+                var today = new Date().toDateString();
+                var yesterday = new Date(Date.now() - 86400000).toDateString();
+
+                if (lastClaimDate === today) {
+                    document.getElementById('claimBonusBtn').textContent = '✓';
+                    document.getElementById('claimBonusBtn').style.background = '#00aa44';
+                    document.getElementById('claimBonusBtn').disabled = true;
+                } else {
+                    document.getElementById('claimBonusBtn').textContent = 'Забрать';
+                    document.getElementById('claimBonusBtn').style.background = '#ff8800';
+                    document.getElementById('claimBonusBtn').disabled = false;
+                }
+
+                document.getElementById('streakDisplay').textContent = 'День ' + (dailyStreak + 1);
+            }
+
+            document.getElementById('claimBonusBtn').addEventListener('click', function() {
+                var today = new Date().toDateString();
+                var yesterday = new Date(Date.now() - 86400000).toDateString();
+
+                if (lastClaimDate === today) return;
+
+                if (lastClaimDate === yesterday || lastClaimDate === '') {
+                    dailyStreak++;
+                } else {
+                    dailyStreak = 1;
+                }
+
+                var bonus = dailyStreak * 100 + Math.floor(Math.random() * 200);
+                starCount += bonus;
+                lastClaimDate = today;
+                spawnFloatingText(window.innerWidth / 2, window.innerHeight / 2, '+' + bonus + ' БОНУС ДНЯ!', true);
                 updateUI();
             });
 
@@ -557,66 +596,99 @@
             }
 
             document.getElementById('invTab').addEventListener('click', function() { switchTab('inventory'); });
+            document.getElementById('skinsTab').addEventListener('click', function() { switchTab('skins'); });
             document.getElementById('shopTab').addEventListener('click', function() { switchTab('shop'); });
-            document.getElementById('earnTab').addEventListener('click', function() { switchTab('earn'); });
+            document.getElementById('lbTab').addEventListener('click', function() { switchTab('leaderboard'); });
 
             // ==================== ИНВЕНТАРЬ ====================
             function renderInventory() {
                 var inv = document.getElementById('inventory');
-                if (inventoryItems.length === 0) {
-                    inv.innerHTML =
-                        '<div class="item" style="justify-content:center;color:#444466;">пусто</div>';
-                    return;
-                }
-                var html = '';
-                for (var i = 0; i < inventoryItems.length; i++) {
-                    html += '<div class="item"><span>' + inventoryItems[i].icon + ' ' + inventoryItems[i]
-                        .name + '</span><span>' + inventoryItems[i].count + '</span></div>';
-                }
+                var skin = getActiveSkinData();
+                var html = '<div class="item-row"><span>🎨 Скин</span><span>' + skin.icon + ' ' + skin.name + '</span></div>';
+                html += '<div class="item-row"><span>⚡ Сила</span><span>x' + clickPower + '</span></div>';
+                html += '<div class="item-row"><span>🎯 Крит</span><span>' + critChance + '% x' + critMultiplier + '</span></div>';
+                html += '<div class="item-row"><span>🤖 Автоклик</span><span>Ур.' + autoClickerLevel + '/5</span></div>';
+                html += '<div class="item-row"><span>🔓 Лимит</span><span>' + maxClicksToday + '/день</span></div>';
+                html += '<div class="item-row"><span>🔥 Стрик</span><span>' + dailyStreak + ' дн.</span></div>';
+                html += '<div class="item-row"><span>⚠️ Предупреждений</span><span>' + warningCount + '/' + MAX_WARNINGS + '</span></div>';
                 inv.innerHTML = html;
             }
 
+            // ==================== СКИНЫ ====================
+            function renderSkins() {
+                var panel = document.getElementById('skins');
+                var html = '';
+                for (var i = 0; i < skins.length; i++) {
+                    var s = skins[i];
+                    var owned = ownedSkins.indexOf(s.id) !== -1;
+                    var isActive = activeSkin === s.id;
+                    var btnText = isActive ? '✓' : (owned ? 'Выбрать' : s.cost + ' ✦');
+                    var btnClass = isActive ? 'active' : (owned ? 'owned' : '');
+                    html += '<div class="item-row"><span>' + s.icon + ' ' + s.name + '</span><button class="' + btnClass + '" data-id="' + s.id + '">' + btnText + '</button></div>';
+                }
+                panel.innerHTML = html;
+                panel.querySelectorAll('button').forEach(function(btn) {
+                    btn.addEventListener('click', function() {
+                        var id = this.getAttribute('data-id');
+                        if (activeSkin === id) return;
+                        if (ownedSkins.indexOf(id) !== -1) { activeSkin = id; updateUI(); return; }
+                        for (var j = 0; j < skins.length; j++) {
+                            if (skins[j].id === id && starCount >= skins[j].cost) {
+                                starCount -= skins[j].cost;
+                                ownedSkins.push(id);
+                                activeSkin = id;
+                                updateUI();
+                                return;
+                            }
+                        }
+                    });
+                });
+            }
+
             // ==================== МАГАЗИН ====================
-            var shopItems = [
-                { id: 'b2', name: 'x2 Буст', icon: '⚡', cost: 500, power: 2 },
-                { id: 'b5', name: 'x5 Буст', icon: '🔥', cost: 2000, power: 5 },
-                { id: 'b10', name: 'x10 Буст', icon: '💥', cost: 5000, power: 10 },
-                { id: 'l500', name: '+500 кликов', icon: '🔓', cost: 300, limit: 500 },
-                { id: 'l2000', name: '+2000 кликов', icon: '🔓', cost: 1000, limit: 2000 },
+            var boostItems = [
+                { id: 'b2', name: 'x2 Сила', icon: '⚡', cost: 500, power: 2 },
+                { id: 'b5', name: 'x5 Сила', icon: '🔥', cost: 2000, power: 5 },
+                { id: 'b10', name: 'x10 Сила', icon: '💥', cost: 5000, power: 10 },
+                { id: 'b50', name: 'x50 Сила', icon: '🌋', cost: 25000, power: 50 },
+                { id: 'critUp', name: 'Крит 25%', icon: '🎯', cost: 3000, critChance: 25 },
+                { id: 'critUp2', name: 'Крит x10', icon: '💎', cost: 15000, critMultiplier: 10 },
+                { id: 'auto1', name: 'Автоклик 1', icon: '🤖', cost: 2000, autoLevel: 1 },
+                { id: 'auto2', name: 'Автоклик 2', icon: '🤖', cost: 8000, autoLevel: 2 },
+                { id: 'auto3', name: 'Автоклик 3', icon: '🤖', cost: 25000, autoLevel: 3 },
+                { id: 'auto4', name: 'Автоклик 4', icon: '🤖', cost: 80000, autoLevel: 4 },
+                { id: 'auto5', name: 'Автоклик 5', icon: '🤖', cost: 250000, autoLevel: 5 },
+                { id: 'l500', name: '+500 Кликов', icon: '🔓', cost: 300, limit: 500 },
+                { id: 'l2000', name: '+2000 Кликов', icon: '🔓', cost: 1000, limit: 2000 },
+                { id: 'l10000', name: '+10000 Кликов', icon: '🔓', cost: 4000, limit: 10000 },
             ];
 
             function renderShop() {
                 var shop = document.getElementById('shop');
                 var html = '';
-                for (var i = 0; i < shopItems.length; i++) {
-                    var item = shopItems[i];
+                for (var i = 0; i < boostItems.length; i++) {
+                    var item = boostItems[i];
                     var canBuy = starCount >= item.cost;
-                    html += '<div class="shop-item"><span>' + item.icon + ' ' + item.name +
-                        '</span><button data-id="' + item.id + '" ' + (canBuy ? '' : 'disabled') + '>' +
-                        item.cost + ' ✦</button></div>';
+                    html += '<div class="item-row"><span>' + item.icon + ' ' + item.name + '</span><button ' + (canBuy ? '' : 'disabled') + ' data-id="' + item.id + '">' + item.cost + ' ✦</button></div>';
                 }
                 shop.innerHTML = html;
-
                 shop.querySelectorAll('button').forEach(function(btn) {
                     btn.addEventListener('click', function() {
                         var id = this.getAttribute('data-id');
-                        for (var j = 0; j < shopItems.length; j++) {
-                            if (shopItems[j].id === id) {
-                                var item = shopItems[j];
-                                if (starCount < item.cost) return;
+                        for (var j = 0; j < boostItems.length; j++) {
+                            var item = boostItems[j];
+                            if (item.id === id && starCount >= item.cost) {
                                 starCount -= item.cost;
                                 if (item.power) clickPower = item.power;
                                 if (item.limit) maxClicksToday += item.limit;
+                                if (item.critChance) critChance = item.critChance;
+                                if (item.critMultiplier) critMultiplier = item.critMultiplier;
+                                if (item.autoLevel && item.autoLevel > autoClickerLevel) autoClickerLevel = item.autoLevel;
                                 var found = false;
                                 for (var k = 0; k < inventoryItems.length; k++) {
-                                    if (inventoryItems[k].id === id) {
-                                        inventoryItems[k].count++;
-                                        found = true;
-                                        break;
-                                    }
+                                    if (inventoryItems[k].id === id) { inventoryItems[k].count++; found = true; break; }
                                 }
-                                if (!found) inventoryItems.push({ id: id, name: item.name,
-                                    icon: item.icon, count: 1 });
+                                if (!found) inventoryItems.push({ id: id, name: item.name, icon: item.icon, count: 1 });
                                 updateUI();
                                 break;
                             }
@@ -625,90 +697,75 @@
                 });
             }
 
-            // ==================== ВЫВОД ====================
-            function renderEarn() {
-                var earn = document.getElementById('earn');
-                var convertible = Math.floor(starCount / STAR_TO_TON * 100) / 100;
-                earn.innerHTML =
-                    '<div style="text-align:center;padding:10px;color:#8888aa;font-size:10px;">' +
-                    '<p style="color:#ffdd88;font-size:15px;">💎 ' + convertible.toFixed(2) +
-                    ' TON доступно</p>' +
-                    '<p>Курс: ' + STAR_TO_TON + ' ✦ = 1 TON</p>' +
-                    '<p>Баланс: ' + tonBalance.toFixed(2) + ' TON</p>' +
-                    '<button id="convertBtn" style="background:#200840;color:#cc99ff;border:none;padding:7px 14px;font-family:Courier New;margin:8px 0;border-radius:15px;cursor:pointer;font-size:10px;">Конвертировать ✦ → TON</button>' +
-                    '<button id="openWithdrawBtn" class="ton-btn withdraw" style="margin-top:4px;font-size:11px;padding:8px;">💳 Вывести TON</button>' +
-                    '<p style="font-size:8px;color:#444466;margin-top:5px;">1 TON ≈ 200-350 ₽</p>' +
-                    '</div>';
-
-                document.getElementById('convertBtn').addEventListener('click', function() {
-                    if (starCount >= STAR_TO_TON) {
-                        var tons = Math.floor(starCount / STAR_TO_TON);
-                        starCount -= tons * STAR_TO_TON;
-                        tonBalance += tons;
-                        updateUI();
-                        alert('Конвертировано: ' + (tons * STAR_TO_TON) + ' ✦ → ' + tons + ' TON');
-                    } else {
-                        alert('Нужно минимум ' + STAR_TO_TON + ' звёзд');
+            // ==================== ТАБЛИЦА ЛИДЕРОВ ====================
+            function getLeaderboard() {
+                var lb = [];
+                for (var i = 0; i < localStorage.length; i++) {
+                    var key = localStorage.key(i);
+                    if (key.indexOf('cosmic3_') === 0) {
+                        try {
+                            var data = JSON.parse(localStorage.getItem(key));
+                            var uid = key.replace('cosmic3_', '');
+                            lb.push({ id: uid, stars: data.starCount || 0, skin: data.activeSkin || 'default', streak: data.dailyStreak || 0 });
+                        } catch (e) {}
                     }
-                });
-
-                document.getElementById('openWithdrawBtn').addEventListener('click', function() {
-                    if (tonBalance < MIN_WITHDRAW) {
-                        alert('Минимальный вывод: ' + MIN_WITHDRAW + ' TON');
-                        return;
-                    }
-                    document.getElementById('withdrawAvailable').textContent = tonBalance.toFixed(2);
-                    document.getElementById('withdrawPopup').classList.add('show');
-                });
+                }
+                lb.sort(function(a, b) { return b.stars - a.stars; });
+                return lb.slice(0, 50);
             }
 
-            // ==================== ВЫВОД TON ====================
-            document.getElementById('confirmWithdrawBtn').addEventListener('click', function() {
-                if (!connectedWallet) {
-                    alert('Сначала подключите кошелёк TON (кнопка сверху)');
-                    return;
+            function updateLeaderboard() {
+                var lb = getLeaderboard();
+                var rank = '-';
+                for (var i = 0; i < lb.length; i++) {
+                    if (lb[i].id === userId) { rank = '#' + (i + 1); break; }
                 }
-                if (tonBalance < MIN_WITHDRAW) {
-                    alert('Минимум ' + MIN_WITHDRAW + ' TON');
-                    return;
+                document.getElementById('rankDisplay').textContent = '🏆 ' + rank;
+            }
+
+            function renderLeaderboard() {
+                var lb = getLeaderboard();
+                var panel = document.getElementById('leaderboard');
+                var html = '<div style="color:#8888ff;text-align:center;font-size:10px;margin-bottom:4px;">🏆 ТОП ИГРОКОВ</div>';
+                for (var i = 0; i < Math.min(lb.length, 20); i++) {
+                    var p = lb[i];
+                    var name = p.id === userId ? '★ ВЫ' : ('Игрок ' + p.id.slice(0, 6));
+                    var topClass = '';
+                    if (i === 0) topClass = ' top1';
+                    if (i === 1) topClass = ' top2';
+                    if (i === 2) topClass = ' top3';
+                    var skinIcon = '✦';
+                    for (var j = 0; j < skins.length; j++) {
+                        if (skins[j].id === p.skin) { skinIcon = skins[j].icon; break; }
+                    }
+                    html += '<div class="leaderboard-item' + topClass + '">' +
+                        '<span>' + (i + 1) + '. ' + skinIcon + ' ' + name + '</span>' +
+                        '<span>' + p.stars + ' ✦</span></div>';
                 }
+                if (lb.length === 0) html += '<div style="color:#444466;text-align:center;">Нет игроков</div>';
+                panel.innerHTML = html;
+            }
 
-                var amount = tonBalance;
-                var walletAddress = connectedWallet.account.address;
-
-                // В реальном проекте здесь:
-                // 1. Отправка транзакции через TON Connect SDK
-                // 2. Перевод TON с твоего кошелька на кошелёк пользователя
-                // 3. Подтверждение через блокчейн
-
-                alert('✅ Заявка создана!\n\n' +
-                    'Сумма: ' + amount.toFixed(2) + ' TON\n' +
-                    'Кошелёк: ' + walletAddress.slice(0, 12) + '...\n\n' +
-                    'Обработка до 24 часов.');
-
-                tonBalance = 0;
-                document.getElementById('withdrawPopup').classList.remove('show');
-                updateUI();
-            });
-
-            document.getElementById('cancelWithdrawBtn').addEventListener('click', function() {
-                document.getElementById('withdrawPopup').classList.remove('show');
-            });
+            function renderAll() {
+                renderInventory();
+                renderSkins();
+                renderShop();
+                renderLeaderboard();
+            }
 
             // ==================== СБРОС КЛИКОВ ====================
             var today = new Date().toDateString();
-            var savedDate = localStorage.getItem('cosmicDate_' + userId);
+            var savedDate = localStorage.getItem('cosmicDate3_' + userId);
             if (savedDate !== today) {
                 clicksToday = 0;
-                localStorage.setItem('cosmicDate_' + userId, today);
+                localStorage.setItem('cosmicDate3_' + userId, today);
             }
-
             setInterval(function() {
                 var now = new Date().toDateString();
                 if (now !== today) {
                     today = now;
                     clicksToday = 0;
-                    localStorage.setItem('cosmicDate_' + userId, today);
+                    localStorage.setItem('cosmicDate3_' + userId, today);
                     updateUI();
                 }
             }, 60000);
@@ -717,4 +774,4 @@
         })();
     </script>
 </body>
-</html>
+    </html>
