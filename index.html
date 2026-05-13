@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>COSMIC CLICKER</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://unpkg.com/@tonconnect/ui@2.0.0/dist/tonconnect-ui.min.js"></script>
+    <script src="https://unpkg.com/@tonconnect/sdk@3.0.0/dist/tonconnect-sdk.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -75,6 +77,14 @@
         }
         .bonus-bar .streak { color: #ffaa00; font-weight: bold; }
 
+        .ton-btn {
+            width: 100%; background: #0088cc; color: #fff; border: none;
+            padding: 8px; cursor: pointer; font-family: 'Courier New', monospace;
+            font-size: 10px; letter-spacing: 1px; border-radius: 15px;
+            margin-top: 6px; font-weight: bold;
+        }
+        .ton-btn.connected { background: #00aa55; }
+
         .meteor-alert {
             position: fixed; top: 10%; left: 50%; transform: translateX(-50%);
             background: #ff6600; color: #fff; padding: 10px 20px;
@@ -132,6 +142,9 @@
             padding: 3px 8px; cursor: pointer; font-family: 'Courier New', monospace;
             font-size: 8px; border-radius: 8px; white-space: nowrap;
         }
+        .item-row button.ton-buy {
+            background: #0088cc; color: #fff;
+        }
         .item-row button.owned { background: #003300; color: #88ff88; }
         .item-row button.active { background: #ffaa00; color: #000; }
         .item-row button:disabled { opacity: 0.4; }
@@ -162,6 +175,29 @@
             font-size: 20px !important;
             text-shadow: 0 0 20px #ffaa00 !important;
         }
+
+        .popup {
+            display: none;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 300;
+            justify-content: center; align-items: center;
+        }
+        .popup.show { display: flex; }
+
+        .popup-card {
+            background: #08081a; border: 2px solid #3333aa;
+            padding: 20px; text-align: center; color: #bbbbff;
+            width: 90%; max-width: 340px; border-radius: 12px;
+        }
+        .popup-card h3 { margin-bottom: 10px; color: #8888ff; font-size: 15px; }
+        .popup-card button {
+            background: #1a1050; color: #bbbbff; border: none;
+            padding: 8px 16px; cursor: pointer; font-family: 'Courier New', monospace;
+            font-size: 11px; letter-spacing: 1px; margin: 4px; border-radius: 15px; width: 100%;
+        }
+        .popup-card .ton-pay-btn {
+            background: #0088cc; color: #fff; font-size: 13px; font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -190,20 +226,34 @@
             <button id="claimBonusBtn" style="background:#ff8800;color:#000;border:none;padding:3px 8px;font-family:'Courier New',monospace;font-size:8px;border-radius:8px;cursor:pointer;">Забрать</button>
         </div>
 
+        <button class="ton-btn" id="tonConnectBtn">💎 Подключить TON</button>
+
         <div class="tabs">
             <button class="tab-btn active" id="invTab">🎒 Моё</button>
             <button class="tab-btn" id="skinsTab">🎨 Скины</button>
             <button class="tab-btn" id="shopTab">🛒 Буст</button>
+            <button class="tab-btn" id="tonShopTab">💎 TON</button>
             <button class="tab-btn" id="lbTab">🏆 Топ</button>
         </div>
 
         <div class="panel active" id="inventory"></div>
         <div class="panel" id="skins"></div>
         <div class="panel" id="shop"></div>
+        <div class="panel" id="tonShop"></div>
         <div class="panel" id="leaderboard"></div>
     </div>
 
     <div class="meteor-alert" id="meteorAlert">☄️ ЗВЁЗДНЫЙ ДОЖДЬ! x5 КЛИКИ! ☄️</div>
+
+    <div class="popup" id="paymentPopup">
+        <div class="popup-card">
+            <h3 id="paymentTitle">Покупка</h3>
+            <p style="font-size:11px;margin:8px 0;" id="paymentDesc"></p>
+            <p style="color:#ffdd88;font-size:13px;font-weight:bold;" id="paymentAmount"></p>
+            <button class="ton-pay-btn" id="confirmPaymentBtn">💎 Оплатить через TON</button>
+            <button id="cancelPaymentBtn">Отмена</button>
+        </div>
+    </div>
 
     <script>
         (function() {
@@ -216,6 +266,35 @@
             if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
                 userId = tg.initDataUnsafe.user.id.toString();
                 username = tg.initDataUnsafe.user.first_name || 'Гость';
+            }
+
+            // TON конфиг
+            var MERCHANT_WALLET = 'UQB1zQdsU4sS-Fpuys03gXX5zccrRAC18Mz9flzZgRcTq9wv';
+            var TON_RATE = 0.5; // 0.5 TON за пак
+
+            // TON Connect
+            var tonConnectUI = null;
+            var connectedWallet = null;
+
+            try {
+                tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+                    manifestUrl: 'https://raw.githubusercontent.com/ton-community/tutorials/main/03-wallet/step-3/tonconnect-manifest.json',
+                    buttonRootId: 'tonConnectBtn'
+                });
+
+                tonConnectUI.onStatusChange(function(wallet) {
+                    connectedWallet = wallet;
+                    var btn = document.getElementById('tonConnectBtn');
+                    if (wallet) {
+                        btn.textContent = '✓ ' + wallet.account.address.slice(0, 10) + '...';
+                        btn.classList.add('connected');
+                    } else {
+                        btn.textContent = '💎 Подключить TON';
+                        btn.classList.remove('connected');
+                    }
+                });
+            } catch (e) {
+                console.log('TON Connect demo mode');
             }
 
             // Звёздное поле
@@ -242,7 +321,6 @@
             }
             createStars();
 
-            // Метеоры для дождя
             var meteors = [];
             var meteorShowerActive = false;
 
@@ -260,7 +338,6 @@
             function drawStars() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-                // Фон
                 for (var i = 0; i < starsArray.length; i++) {
                     var s = starsArray[i];
                     s.phase += s.freq;
@@ -271,7 +348,6 @@
                     ctx.fill();
                 }
 
-                // Метеоры
                 if (meteorShowerActive) {
                     if (Math.random() < 0.4) meteors.push(spawnMeteor());
                     for (var j = meteors.length - 1; j >= 0; j--) {
@@ -281,11 +357,7 @@
                         m.x += m.speed * 0.5;
                         m.y += m.speed * 2;
                         m.opacity -= 0.01;
-                        if (m.opacity <= 0 || m.y > canvas.height + 50) {
-                            meteors.splice(j, 1);
-                            continue;
-                        }
-                        // Шлейф
+                        if (m.opacity <= 0 || m.y > canvas.height + 50) { meteors.splice(j, 1); continue; }
                         for (var k = 0; k < m.trail.length; k++) {
                             var t = m.trail[k];
                             var ta = (k / m.trail.length) * m.opacity * 0.5;
@@ -307,16 +379,16 @@
 
             // Скины
             var skins = [
-                { id: 'default', name: 'Звезда', icon: '✦', cost: 0, glow: 'rgba(180,160,255,0.5) 0%, rgba(80,60,200,0.15) 50%, transparent 70%', color: '#aabbff' },
-                { id: 'pulsar', name: 'Пульсар', icon: '✧', cost: 1000, glow: 'rgba(100,255,200,0.5) 0%, rgba(0,200,100,0.15) 50%, transparent 70%', color: '#88ffcc' },
-                { id: 'nova', name: 'Сверхновая', icon: '✶', cost: 5000, glow: 'rgba(255,100,50,0.6) 0%, rgba(255,50,0,0.2) 50%, transparent 70%', color: '#ff6644' },
-                { id: 'galaxy', name: 'Галактика', icon: '✷', cost: 10000, glow: 'rgba(200,100,255,0.6) 0%, rgba(150,0,255,0.2) 50%, transparent 70%', color: '#cc88ff' },
-                { id: 'void', name: 'Пустота', icon: '✬', cost: 25000, glow: 'rgba(0,0,0,0.8) 0%, rgba(50,0,100,0.3) 50%, transparent 70%', color: '#000000' },
-                { id: 'sun', name: 'Солнце', icon: '✺', cost: 50000, glow: 'rgba(255,255,0,0.7) 0%, rgba(255,150,0,0.3) 50%, transparent 70%', color: '#ffdd00' },
-                { id: 'quasar', name: 'Квазар', icon: '≛', cost: 100000, glow: 'rgba(0,200,255,0.8) 0%, rgba(0,100,255,0.3) 50%, transparent 70%', color: '#00ccff' },
-                { id: 'cosmic', name: 'Космос', icon: '✹', cost: 250000, glow: 'rgba(255,0,255,0.6) 0%, rgba(100,0,200,0.3) 50%, transparent 70%', color: '#ff00ff' },
-                { id: 'nebula', name: 'Туманность', icon: '✫', cost: 500000, glow: 'rgba(255,100,200,0.7) 0%, rgba(200,50,150,0.3) 50%, transparent 70%', color: '#ff88cc' },
-                { id: 'god', name: 'Божество', icon: '⚝', cost: 1000000, glow: 'rgba(255,255,255,1) 0%, rgba(200,200,255,0.5) 50%, transparent 70%', color: '#ffffff' }
+                { id: 'default', name: 'Звезда', icon: '✦', cost: 0, tonCost: 0, glow: 'rgba(180,160,255,0.5) 0%, rgba(80,60,200,0.15) 50%, transparent 70%', color: '#aabbff' },
+                { id: 'pulsar', name: 'Пульсар', icon: '✧', cost: 1000, tonCost: 0.1, glow: 'rgba(100,255,200,0.5) 0%, rgba(0,200,100,0.15) 50%, transparent 70%', color: '#88ffcc' },
+                { id: 'nova', name: 'Сверхновая', icon: '✶', cost: 5000, tonCost: 0.3, glow: 'rgba(255,100,50,0.6) 0%, rgba(255,50,0,0.2) 50%, transparent 70%', color: '#ff6644' },
+                { id: 'galaxy', name: 'Галактика', icon: '✷', cost: 10000, tonCost: 0.5, glow: 'rgba(200,100,255,0.6) 0%, rgba(150,0,255,0.2) 50%, transparent 70%', color: '#cc88ff' },
+                { id: 'void', name: 'Пустота', icon: '✬', cost: 25000, tonCost: 1, glow: 'rgba(0,0,0,0.8) 0%, rgba(50,0,100,0.3) 50%, transparent 70%', color: '#000000' },
+                { id: 'sun', name: 'Солнце', icon: '✺', cost: 50000, tonCost: 2, glow: 'rgba(255,255,0,0.7) 0%, rgba(255,150,0,0.3) 50%, transparent 70%', color: '#ffdd00' },
+                { id: 'quasar', name: 'Квазар', icon: '≛', cost: 100000, tonCost: 5, glow: 'rgba(0,200,255,0.8) 0%, rgba(0,100,255,0.3) 50%, transparent 70%', color: '#00ccff' },
+                { id: 'cosmic', name: 'Космос', icon: '✹', cost: 250000, tonCost: 10, glow: 'rgba(255,0,255,0.6) 0%, rgba(100,0,200,0.3) 50%, transparent 70%', color: '#ff00ff' },
+                { id: 'nebula', name: 'Туманность', icon: '✫', cost: 500000, tonCost: 25, glow: 'rgba(255,100,200,0.7) 0%, rgba(200,50,150,0.3) 50%, transparent 70%', color: '#ff88cc' },
+                { id: 'god', name: 'Божество', icon: '⚝', cost: 1000000, tonCost: 50, glow: 'rgba(255,255,255,1) 0%, rgba(200,200,255,0.5) 50%, transparent 70%', color: '#ffffff' }
             ];
 
             // Данные игрока
@@ -333,10 +405,10 @@
             var critMultiplier = 3;
             var autoClickerLevel = 0;
             var autoClickerInterval = null;
+            var unlimitedClicks = false;
 
-            // Загрузка
             try {
-                var data = JSON.parse(localStorage.getItem('cosmic3_' + userId) || '{}');
+                var data = JSON.parse(localStorage.getItem('cosmic4_' + userId) || '{}');
                 starCount = data.starCount || 0;
                 clickPower = data.clickPower || 1;
                 activeSkin = data.activeSkin || 'default';
@@ -349,17 +421,19 @@
                 critChance = data.critChance || 10;
                 critMultiplier = data.critMultiplier || 3;
                 autoClickerLevel = data.autoClickerLevel || 0;
+                unlimitedClicks = data.unlimitedClicks || false;
             } catch (e) {}
 
             function save() {
                 try {
-                    localStorage.setItem('cosmic3_' + userId, JSON.stringify({
+                    localStorage.setItem('cosmic4_' + userId, JSON.stringify({
                         starCount: starCount, clickPower: clickPower,
                         activeSkin: activeSkin, ownedSkins: ownedSkins,
                         inventoryItems: inventoryItems, clicksToday: clicksToday,
                         maxClicksToday: maxClicksToday, dailyStreak: dailyStreak,
                         lastClaimDate: lastClaimDate, critChance: critChance,
-                        critMultiplier: critMultiplier, autoClickerLevel: autoClickerLevel
+                        critMultiplier: critMultiplier, autoClickerLevel: autoClickerLevel,
+                        unlimitedClicks: unlimitedClicks
                     }));
                 } catch (e) {}
                 updateLeaderboard();
@@ -381,9 +455,10 @@
 
             function updateUI() {
                 document.getElementById('counter').textContent = starCount + ' ✦';
-                document.getElementById('perClick').textContent = '+' + clickPower + ' за клик | Крит: ' + critChance + '% x' + critMultiplier;
+                var limitText = unlimitedClicks ? '∞' : (clicksToday + '/' + maxClicksToday);
+                document.getElementById('perClick').textContent = '+' + clickPower + ' | Крит: ' + critChance + '% x' + critMultiplier + (unlimitedClicks ? ' | БЕЗЛИМИТ' : '');
                 document.getElementById('starDisplay').textContent = '✦: ' + starCount;
-                document.getElementById('limitDisplay').textContent = clicksToday + '/' + maxClicksToday;
+                document.getElementById('limitDisplay').textContent = limitText;
                 updateClickArea();
                 updateBonusBar();
                 renderAll();
@@ -401,7 +476,7 @@
                 setTimeout(function() { el.remove(); }, 800);
             }
 
-            // ==================== ЗАЩИТА ОТ АВТОКЛИКЕРОВ ====================
+            // Защита от автокликеров
             var clickTimestamps = [];
             var CLICK_WINDOW = 1000;
             var MAX_CLICKS_PER_WINDOW = 15;
@@ -412,22 +487,17 @@
 
             function isAutoClickerDetected() {
                 var now = Date.now();
-
                 if (now < clickBlockedUntil) return true;
-
                 clickTimestamps.push(now);
                 while (clickTimestamps.length > 0 && clickTimestamps[0] < now - CLICK_WINDOW) {
                     clickTimestamps.shift();
                 }
-
                 if (clickTimestamps.length > MAX_CLICKS_PER_WINDOW) {
                     warningCount++;
                     clickBlockedUntil = now + BLOCK_DURATION * warningCount;
                     clickTimestamps = [];
                     return true;
                 }
-
-                // Проверка на роботный паттерн (одинаковые интервалы)
                 if (clickTimestamps.length >= 5) {
                     var intervals = [];
                     for (var i = 1; i < clickTimestamps.length; i++) {
@@ -444,13 +514,12 @@
                         return true;
                     }
                 }
-
                 return false;
             }
 
-            // ==================== КЛИК ====================
+            // Клик
             document.getElementById('clickArea').addEventListener('click', function(e) {
-                if (clicksToday >= maxClicksToday) {
+                if (!unlimitedClicks && clicksToday >= maxClicksToday) {
                     spawnFloatingText(e.clientX, e.clientY, 'ЛИМИТ', false);
                     return;
                 }
@@ -464,13 +533,11 @@
                 var gained = clickPower;
                 var isCrit = false;
 
-                // Критический удар
                 if (Math.random() * 100 < critChance) {
                     gained = Math.floor(clickPower * critMultiplier);
                     isCrit = true;
                 }
 
-                // Звёздный дождь x5
                 if (meteorShowerActive) {
                     gained = gained * 5;
                     isCrit = true;
@@ -482,7 +549,7 @@
                 updateUI();
             });
 
-            // ==================== АВТОКЛИКЕР (ПОКУПНОЙ) ====================
+            // Автокликер
             function updateAutoClicker() {
                 if (autoClickerInterval) clearInterval(autoClickerInterval);
                 if (autoClickerLevel > 0) {
@@ -491,7 +558,7 @@
                     var speed = speeds[autoClickerLevel] || 2000;
                     var perTick = clicks[autoClickerLevel] || 1;
                     autoClickerInterval = setInterval(function() {
-                        if (clicksToday < maxClicksToday) {
+                        if (unlimitedClicks || clicksToday < maxClicksToday) {
                             var gained = clickPower * perTick;
                             if (meteorShowerActive) gained = gained * 5;
                             starCount += gained;
@@ -502,7 +569,7 @@
                 }
             }
 
-            // ==================== ЗВЁЗДНЫЙ ДОЖДЬ ====================
+            // Звёздный дождь
             function triggerMeteorShower() {
                 meteorShowerActive = true;
                 meteors = [];
@@ -516,12 +583,10 @@
             }
 
             setInterval(function() {
-                if (!meteorShowerActive && Math.random() < 0.3) {
-                    triggerMeteorShower();
-                }
+                if (!meteorShowerActive && Math.random() < 0.3) triggerMeteorShower();
             }, 300000);
 
-            // ==================== ПАРЯЩИЕ БОНУСЫ ====================
+            // Парящие бонусы
             function spawnFloatingBonus() {
                 var el = document.createElement('div');
                 el.className = 'floating-bonus';
@@ -532,29 +597,24 @@
                 document.body.appendChild(el);
 
                 var bonusAmount = Math.floor(Math.random() * 900) + 100;
-
-                el.addEventListener('click', function(e) {
-                    e.stopPropagation();
+                el.addEventListener('click', function(ev) {
+                    ev.stopPropagation();
                     starCount += bonusAmount;
-                    spawnFloatingText(e.clientX, e.clientY, '+' + bonusAmount + ' БОНУС', true);
+                    spawnFloatingText(ev.clientX, ev.clientY, '+' + bonusAmount + ' БОНУС', true);
                     el.remove();
                     updateUI();
                 });
 
-                setTimeout(function() {
-                    if (el.parentNode) el.remove();
-                }, 8000);
+                setTimeout(function() { if (el.parentNode) el.remove(); }, 8000);
             }
 
             setInterval(function() {
                 if (Math.random() < 0.5) spawnFloatingBonus();
             }, 45000);
 
-            // ==================== ЕЖЕДНЕВНЫЙ БОНУС ====================
+            // Ежедневный бонус
             function updateBonusBar() {
                 var today = new Date().toDateString();
-                var yesterday = new Date(Date.now() - 86400000).toDateString();
-
                 if (lastClaimDate === today) {
                     document.getElementById('claimBonusBtn').textContent = '✓';
                     document.getElementById('claimBonusBtn').style.background = '#00aa44';
@@ -564,27 +624,76 @@
                     document.getElementById('claimBonusBtn').style.background = '#ff8800';
                     document.getElementById('claimBonusBtn').disabled = false;
                 }
-
                 document.getElementById('streakDisplay').textContent = 'День ' + (dailyStreak + 1);
             }
 
             document.getElementById('claimBonusBtn').addEventListener('click', function() {
                 var today = new Date().toDateString();
                 var yesterday = new Date(Date.now() - 86400000).toDateString();
-
                 if (lastClaimDate === today) return;
-
-                if (lastClaimDate === yesterday || lastClaimDate === '') {
-                    dailyStreak++;
-                } else {
-                    dailyStreak = 1;
-                }
-
+                if (lastClaimDate === yesterday || lastClaimDate === '') { dailyStreak++; } else { dailyStreak = 1; }
                 var bonus = dailyStreak * 100 + Math.floor(Math.random() * 200);
                 starCount += bonus;
                 lastClaimDate = today;
                 spawnFloatingText(window.innerWidth / 2, window.innerHeight / 2, '+' + bonus + ' БОНУС ДНЯ!', true);
                 updateUI();
+            });
+
+            // ==================== ПЛАТЕЖИ TON ====================
+            var pendingPayment = null;
+
+            function requestTonPayment(itemName, tonAmount, onSuccess) {
+                if (!connectedWallet) {
+                    alert('Сначала подключите TON кошелёк! (кнопка "Подключить TON")');
+                    return;
+                }
+
+                pendingPayment = { name: itemName, amount: tonAmount, callback: onSuccess };
+
+                document.getElementById('paymentTitle').textContent = 'Покупка: ' + itemName;
+                document.getElementById('paymentDesc').textContent = 'Перевод на кошелёк продавца';
+                document.getElementById('paymentAmount').textContent = tonAmount + ' TON';
+                document.getElementById('paymentPopup').classList.add('show');
+            }
+
+            document.getElementById('confirmPaymentBtn').addEventListener('click', function() {
+                if (!pendingPayment) return;
+
+                var transaction = {
+                    validUntil: Math.floor(Date.now() / 1000) + 600,
+                    messages: [{
+                        address: MERCHANT_WALLET,
+                        amount: Math.floor(pendingPayment.amount * 1000000000).toString()
+                    }]
+                };
+
+                try {
+                    tonConnectUI.sendTransaction(transaction).then(function(result) {
+                        console.log('Transaction sent:', result);
+                        alert('✅ Платёж отправлен! Ожидайте подтверждения в блокчейне TON.\n\nПосле подтверждения покупка активируется.');
+                        if (pendingPayment.callback) pendingPayment.callback();
+                        document.getElementById('paymentPopup').classList.remove('show');
+                        pendingPayment = null;
+                        updateUI();
+                    }).catch(function(err) {
+                        console.log('Transaction failed:', err);
+                        alert('❌ Платёж отменён или не удался.');
+                        document.getElementById('paymentPopup').classList.remove('show');
+                        pendingPayment = null;
+                    });
+                } catch (e) {
+                    // Демо-режим
+                    alert('✅ ДЕМО: Платёж на ' + pendingPayment.amount + ' TON отправлен!\n\nВ реальном режиме TON уйдёт на кошелёк:\n' + MERCHANT_WALLET.slice(0, 20) + '...');
+                    if (pendingPayment.callback) pendingPayment.callback();
+                    document.getElementById('paymentPopup').classList.remove('show');
+                    pendingPayment = null;
+                    updateUI();
+                }
+            });
+
+            document.getElementById('cancelPaymentBtn').addEventListener('click', function() {
+                document.getElementById('paymentPopup').classList.remove('show');
+                pendingPayment = null;
             });
 
             // ==================== ТАБЫ ====================
@@ -598,6 +707,7 @@
             document.getElementById('invTab').addEventListener('click', function() { switchTab('inventory'); });
             document.getElementById('skinsTab').addEventListener('click', function() { switchTab('skins'); });
             document.getElementById('shopTab').addEventListener('click', function() { switchTab('shop'); });
+            document.getElementById('tonShopTab').addEventListener('click', function() { switchTab('tonShop'); });
             document.getElementById('lbTab').addEventListener('click', function() { switchTab('leaderboard'); });
 
             // ==================== ИНВЕНТАРЬ ====================
@@ -608,44 +718,72 @@
                 html += '<div class="item-row"><span>⚡ Сила</span><span>x' + clickPower + '</span></div>';
                 html += '<div class="item-row"><span>🎯 Крит</span><span>' + critChance + '% x' + critMultiplier + '</span></div>';
                 html += '<div class="item-row"><span>🤖 Автоклик</span><span>Ур.' + autoClickerLevel + '/5</span></div>';
-                html += '<div class="item-row"><span>🔓 Лимит</span><span>' + maxClicksToday + '/день</span></div>';
+                html += '<div class="item-row"><span>🔓 Лимит</span><span>' + (unlimitedClicks ? 'Безлимит' : maxClicksToday + '/день') + '</span></div>';
                 html += '<div class="item-row"><span>🔥 Стрик</span><span>' + dailyStreak + ' дн.</span></div>';
-                html += '<div class="item-row"><span>⚠️ Предупреждений</span><span>' + warningCount + '/' + MAX_WARNINGS + '</span></div>';
                 inv.innerHTML = html;
             }
 
             // ==================== СКИНЫ ====================
             function renderSkins() {
                 var panel = document.getElementById('skins');
-                var html = '';
+                var html = '<div style="color:#8888aa;font-size:8px;text-align:center;margin-bottom:4px;">Можно купить за ✦ или TON</div>';
                 for (var i = 0; i < skins.length; i++) {
                     var s = skins[i];
                     var owned = ownedSkins.indexOf(s.id) !== -1;
                     var isActive = activeSkin === s.id;
                     var btnText = isActive ? '✓' : (owned ? 'Выбрать' : s.cost + ' ✦');
                     var btnClass = isActive ? 'active' : (owned ? 'owned' : '');
-                    html += '<div class="item-row"><span>' + s.icon + ' ' + s.name + '</span><button class="' + btnClass + '" data-id="' + s.id + '">' + btnText + '</button></div>';
+                    html += '<div class="item-row"><span>' + s.icon + ' ' + s.name + '</span>';
+                    if (!owned) {
+                        html += '<button class="' + btnClass + '" data-id="' + s.id + '" data-action="stars">' + btnText + '</button>';
+                        if (s.tonCost > 0) {
+                            html += '<button class="ton-buy" data-id="' + s.id + '" data-action="ton">' + s.tonCost + ' TON</button>';
+                        }
+                    } else {
+                        html += '<button class="' + btnClass + '" data-id="' + s.id + '" data-action="equip">' + btnText + '</button>';
+                    }
+                    html += '</div>';
                 }
                 panel.innerHTML = html;
                 panel.querySelectorAll('button').forEach(function(btn) {
                     btn.addEventListener('click', function() {
                         var id = this.getAttribute('data-id');
-                        if (activeSkin === id) return;
-                        if (ownedSkins.indexOf(id) !== -1) { activeSkin = id; updateUI(); return; }
-                        for (var j = 0; j < skins.length; j++) {
-                            if (skins[j].id === id && starCount >= skins[j].cost) {
-                                starCount -= skins[j].cost;
-                                ownedSkins.push(id);
-                                activeSkin = id;
-                                updateUI();
-                                return;
+                        var action = this.getAttribute('data-action');
+
+                        if (action === 'equip') {
+                            activeSkin = id;
+                            updateUI();
+                            return;
+                        }
+
+                        if (action === 'ton') {
+                            for (var j = 0; j < skins.length; j++) {
+                                if (skins[j].id === id) {
+                                    requestTonPayment('Скин: ' + skins[j].name, skins[j].tonCost, function() {
+                                        ownedSkins.push(id);
+                                        activeSkin = id;
+                                    });
+                                    return;
+                                }
+                            }
+                        }
+
+                        if (action === 'stars') {
+                            for (var j = 0; j < skins.length; j++) {
+                                if (skins[j].id === id && starCount >= skins[j].cost) {
+                                    starCount -= skins[j].cost;
+                                    ownedSkins.push(id);
+                                    activeSkin = id;
+                                    updateUI();
+                                    return;
+                                }
                             }
                         }
                     });
                 });
             }
 
-            // ==================== МАГАЗИН ====================
+            // ==================== МАГАЗИН БУСТОВ ====================
             var boostItems = [
                 { id: 'b2', name: 'x2 Сила', icon: '⚡', cost: 500, power: 2 },
                 { id: 'b5', name: 'x5 Сила', icon: '🔥', cost: 2000, power: 5 },
@@ -656,11 +794,8 @@
                 { id: 'auto1', name: 'Автоклик 1', icon: '🤖', cost: 2000, autoLevel: 1 },
                 { id: 'auto2', name: 'Автоклик 2', icon: '🤖', cost: 8000, autoLevel: 2 },
                 { id: 'auto3', name: 'Автоклик 3', icon: '🤖', cost: 25000, autoLevel: 3 },
-                { id: 'auto4', name: 'Автоклик 4', icon: '🤖', cost: 80000, autoLevel: 4 },
-                { id: 'auto5', name: 'Автоклик 5', icon: '🤖', cost: 250000, autoLevel: 5 },
                 { id: 'l500', name: '+500 Кликов', icon: '🔓', cost: 300, limit: 500 },
                 { id: 'l2000', name: '+2000 Кликов', icon: '🔓', cost: 1000, limit: 2000 },
-                { id: 'l10000', name: '+10000 Кликов', icon: '🔓', cost: 4000, limit: 10000 },
             ];
 
             function renderShop() {
@@ -697,16 +832,53 @@
                 });
             }
 
+            // ==================== TON МАГАЗИН ====================
+            var tonShopItems = [
+                { id: 'stars1', name: '10000 ✦', icon: '⭐', tonCost: 1, stars: 10000 },
+                { id: 'stars2', name: '50000 ✦', icon: '🌟', tonCost: 4, stars: 50000 },
+                { id: 'stars3', name: '200000 ✦', icon: '💫', tonCost: 15, stars: 200000 },
+                { id: 'unlimited', name: 'Безлимит кликов', icon: '♾️', tonCost: 5, unlimited: true },
+                { id: 'vip', name: 'VIP x3 звёзд', icon: '👑', tonCost: 10, vip: true },
+            ];
+
+            function renderTonShop() {
+                var panel = document.getElementById('tonShop');
+                var html = '<div style="color:#ffdd88;font-size:9px;text-align:center;margin-bottom:4px;">💎 ПОКУПКИ ЗА TON — ДЕНЬГИ УХОДЯТ НА КОШЕЛЁК</div>';
+                for (var i = 0; i < tonShopItems.length; i++) {
+                    var item = tonShopItems[i];
+                    html += '<div class="item-row"><span>' + item.icon + ' ' + item.name + '</span><button class="ton-buy" data-id="' + item.id + '">' + item.tonCost + ' TON</button></div>';
+                }
+                html += '<div style="color:#555577;font-size:7px;text-align:center;margin-top:4px;">1 TON ≈ 200-350 ₽ | Продавец: ' + MERCHANT_WALLET.slice(0, 6) + '...' + MERCHANT_WALLET.slice(-4) + '</div>';
+                panel.innerHTML = html;
+
+                panel.querySelectorAll('button').forEach(function(btn) {
+                    btn.addEventListener('click', function() {
+                        var id = this.getAttribute('data-id');
+                        for (var j = 0; j < tonShopItems.length; j++) {
+                            var item = tonShopItems[j];
+                            if (item.id === id) {
+                                requestTonPayment(item.name, item.tonCost, function() {
+                                    if (item.stars) starCount += item.stars;
+                                    if (item.unlimited) unlimitedClicks = true;
+                                    if (item.vip) clickPower = clickPower * 3;
+                                });
+                                return;
+                            }
+                        }
+                    });
+                });
+            }
+
             // ==================== ТАБЛИЦА ЛИДЕРОВ ====================
             function getLeaderboard() {
                 var lb = [];
                 for (var i = 0; i < localStorage.length; i++) {
                     var key = localStorage.key(i);
-                    if (key.indexOf('cosmic3_') === 0) {
+                    if (key.indexOf('cosmic4_') === 0) {
                         try {
                             var data = JSON.parse(localStorage.getItem(key));
-                            var uid = key.replace('cosmic3_', '');
-                            lb.push({ id: uid, stars: data.starCount || 0, skin: data.activeSkin || 'default', streak: data.dailyStreak || 0 });
+                            var uid = key.replace('cosmic4_', '');
+                            lb.push({ id: uid, stars: data.starCount || 0, skin: data.activeSkin || 'default' });
                         } catch (e) {}
                     }
                 }
@@ -750,22 +922,23 @@
                 renderInventory();
                 renderSkins();
                 renderShop();
+                renderTonShop();
                 renderLeaderboard();
             }
 
-            // ==================== СБРОС КЛИКОВ ====================
+            // Сброс кликов
             var today = new Date().toDateString();
-            var savedDate = localStorage.getItem('cosmicDate3_' + userId);
+            var savedDate = localStorage.getItem('cosmicDate4_' + userId);
             if (savedDate !== today) {
                 clicksToday = 0;
-                localStorage.setItem('cosmicDate3_' + userId, today);
+                localStorage.setItem('cosmicDate4_' + userId, today);
             }
             setInterval(function() {
                 var now = new Date().toDateString();
                 if (now !== today) {
                     today = now;
                     clicksToday = 0;
-                    localStorage.setItem('cosmicDate3_' + userId, today);
+                    localStorage.setItem('cosmicDate4_' + userId, today);
                     updateUI();
                 }
             }, 60000);
@@ -774,4 +947,4 @@
         })();
     </script>
 </body>
-    </html>
+</html>
