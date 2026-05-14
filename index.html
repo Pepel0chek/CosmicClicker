@@ -132,7 +132,6 @@
         }
         .panel.active { display: block; }
 
-        /* TON Магазин — яркие карточки */
         .ton-shop-card {
             background: linear-gradient(135deg, #0a0020 0%, #150030 100%);
             border: 2px solid #ffd700; padding: 10px; margin-bottom: 8px;
@@ -219,6 +218,14 @@
             padding: 7px 14px; cursor: pointer; font-family: 'Courier New', monospace;
             font-size: 10px; border-radius: 12px; width: 100%; margin: 3px 0;
         }
+
+        .how-to-connect {
+            background: #0a0a1e; border: 1px solid #ffd700; padding: 8px;
+            margin-top: 4px; border-radius: 8px; font-size: 8px; color: #ffdd88;
+            text-align: center; display: none;
+        }
+        .how-to-connect.show { display: block; }
+        .how-to-connect a { color: #00ccff; text-decoration: underline; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -248,12 +255,20 @@
         </div>
 
         <button class="ton-btn" id="tonConnectBtn">💎 Подключить TON</button>
+        <div class="how-to-connect" id="howToConnect">
+            <p>📱 <b>Как подключить кошелёк:</b></p>
+            <p>1. Скачай <b>Tonkeeper</b> в App Store / Google Play</p>
+            <p>2. Создай кошелёк и сохрани сид-фразу</p>
+            <p>3. Нажми <b>"Подключить TON"</b> выше</p>
+            <p>4. Выбери Tonkeeper → Подтверди</p>
+            <p>Готово! Можно покупать за TON 💎</p>
+        </div>
 
         <div class="tabs">
             <button class="tab-btn active" id="invTab">🎒 Моё</button>
             <button class="tab-btn" id="skinsTab">🎨 Скины</button>
             <button class="tab-btn" id="shopTab">🛒 Буст</button>
-            <button class="tab-btn" id="tonShopTab">💎 TON Магазин</button>
+            <button class="tab-btn" id="tonShopTab">💎 TON</button>
             <button class="tab-btn" id="lbTab">🏆 Топ</button>
         </div>
 
@@ -288,10 +303,15 @@
             tg.ready(); tg.expand();
 
             var userId = 'demo';
-            if (tg.initDataUnsafe && tg.initDataUnsafe.user) userId = tg.initDataUnsafe.user.id.toString();
+            var username = 'Гость';
+            if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                userId = tg.initDataUnsafe.user.id.toString();
+                username = tg.initDataUnsafe.user.first_name || tg.initDataUnsafe.user.username || 'Гость';
+            }
 
             var MERCHANT_WALLET = 'UQB1zQdsU4sS-Fpuys03gXX5zccrRAC18Mz9flzZgRcTq9wv';
 
+            // ==================== TON CONNECT ====================
             var tonConnectUI = null;
             var connectedWallet = null;
 
@@ -303,11 +323,20 @@
                 tonConnectUI.onStatusChange(function(w) {
                     connectedWallet = w;
                     var b = document.getElementById('tonConnectBtn');
-                    b.textContent = w ? '✓ ' + w.account.address.slice(0,10) + '...' : '💎 Подключить TON';
-                    if (w) b.classList.add('connected'); else b.classList.remove('connected');
+                    var h = document.getElementById('howToConnect');
+                    if (w) {
+                        b.textContent = '✓ ' + w.account.address.slice(0,10) + '...';
+                        b.classList.add('connected');
+                        h.classList.remove('show');
+                    } else {
+                        b.textContent = '💎 Подключить TON';
+                        b.classList.remove('connected');
+                        h.classList.add('show');
+                    }
                 });
             } catch(e) {}
 
+            // ==================== ЗВЁЗДНОЕ ПОЛЕ ====================
             var canvas = document.getElementById('starfield');
             var ctx = canvas.getContext('2d');
             var starsArray = [];
@@ -356,6 +385,7 @@
             }
             drawStars();
 
+            // ==================== СКИНЫ ====================
             var skins = [
                 { id: 'default', name: 'Звезда', icon: '✦', cost: 0, glow: 'rgba(180,160,255,0.5) 0%, rgba(80,60,200,0.15) 50%, transparent 70%', color: '#aabbff' },
                 { id: 'pulsar', name: 'Пульсар', icon: '✧', cost: 1000, glow: 'rgba(100,255,200,0.5) 0%, rgba(0,200,100,0.15) 50%, transparent 70%', color: '#88ffcc' },
@@ -367,6 +397,7 @@
                 { id: 'god', name: 'Божество', icon: '⚝', cost: 1000000, glow: 'rgba(255,255,255,1) 0%, rgba(200,200,255,0.5) 50%, transparent 70%', color: '#ffffff' }
             ];
 
+            // ==================== ДАННЫЕ ИГРОКА ====================
             var starCount = 0, clickPower = 1, activeSkin = 'default', ownedSkins = ['default'];
             var inventoryItems = [], clicksToday = 0, maxClicksToday = 500;
             var dailyStreak = 0, lastClaimDate = '';
@@ -374,26 +405,59 @@
             var autoClickerLevel = 0, autoClickerInterval = null;
             var unlimitedClicks = false, vipActive = false, doubleStars = false;
 
-            try {
-                var d = JSON.parse(localStorage.getItem('cosmic5_'+userId)||'{}');
-                starCount=d.starCount||0; clickPower=d.clickPower||1; activeSkin=d.activeSkin||'default';
-                ownedSkins=d.ownedSkins||['default']; inventoryItems=d.inventoryItems||[];
-                clicksToday=d.clicksToday||0; maxClicksToday=d.maxClicksToday||500;
-                dailyStreak=d.dailyStreak||0; lastClaimDate=d.lastClaimDate||'';
-                critChance=d.critChance||10; critMultiplier=d.critMultiplier||3;
-                autoClickerLevel=d.autoClickerLevel||0; unlimitedClicks=d.unlimitedClicks||false;
-                vipActive=d.vipActive||false; doubleStars=d.doubleStars||false;
-            } catch(e) {}
+            // ==================== ЗАГРУЗКА С СОХРАНЕНИЕМ ====================
+            function loadGame() {
+                try {
+                    var key = 'cosmic6_' + userId;
+                    var saved = localStorage.getItem(key);
+                    if (saved) {
+                        var d = JSON.parse(saved);
+                        starCount = d.starCount || 0;
+                        clickPower = d.clickPower || 1;
+                        activeSkin = d.activeSkin || 'default';
+                        ownedSkins = d.ownedSkins || ['default'];
+                        inventoryItems = d.inventoryItems || [];
+                        clicksToday = d.clicksToday || 0;
+                        maxClicksToday = d.maxClicksToday || 500;
+                        dailyStreak = d.dailyStreak || 0;
+                        lastClaimDate = d.lastClaimDate || '';
+                        critChance = d.critChance || 10;
+                        critMultiplier = d.critMultiplier || 3;
+                        autoClickerLevel = d.autoClickerLevel || 0;
+                        unlimitedClicks = d.unlimitedClicks || false;
+                        vipActive = d.vipActive || false;
+                        doubleStars = d.doubleStars || false;
+                        console.log('✅ Прогресс загружен: ' + starCount + ' звёзд');
+                    }
+                } catch(e) {
+                    console.log('⚠️ Ошибка загрузки, начинаем с нуля');
+                }
+            }
 
-            function save() {
-                try { localStorage.setItem('cosmic5_'+userId, JSON.stringify({
-                    starCount, clickPower, activeSkin, ownedSkins, inventoryItems,
-                    clicksToday, maxClicksToday, dailyStreak, lastClaimDate,
-                    critChance, critMultiplier, autoClickerLevel, unlimitedClicks,
-                    vipActive, doubleStars
-                })); } catch(e) {}
+            function saveGame() {
+                try {
+                    var key = 'cosmic6_' + userId;
+                    var data = {
+                        starCount: starCount, clickPower: clickPower,
+                        activeSkin: activeSkin, ownedSkins: ownedSkins,
+                        inventoryItems: inventoryItems, clicksToday: clicksToday,
+                        maxClicksToday: maxClicksToday, dailyStreak: dailyStreak,
+                        lastClaimDate: lastClaimDate, critChance: critChance,
+                        critMultiplier: critMultiplier, autoClickerLevel: autoClickerLevel,
+                        unlimitedClicks: unlimitedClicks, vipActive: vipActive,
+                        doubleStars: doubleStars
+                    };
+                    localStorage.setItem(key, JSON.stringify(data));
+                    console.log('💾 Прогресс сохранён: ' + starCount + ' звёзд');
+                } catch(e) {
+                    console.log('⚠️ Ошибка сохранения');
+                }
                 updateLeaderboard();
             }
+
+            // Сохраняем при каждом действии и перед закрытием
+            window.addEventListener('beforeunload', function() { saveGame(); });
+            window.addEventListener('pagehide', function() { saveGame(); });
 
             function getSkin() { for(var i=0;i<skins.length;i++) if(skins[i].id===activeSkin) return skins[i]; return skins[0]; }
 
@@ -403,7 +467,7 @@
                 var extra = [];
                 if (unlimitedClicks) extra.push('БЕЗЛИМИТ');
                 if (vipActive) extra.push('VIPx3');
-                if (doubleStars) extra.push('x2 ЗВЁЗД');
+                if (doubleStars) extra.push('x2');
                 document.getElementById('perClick').textContent = '+' + clickPower + ' | Крит:' + critChance + '% x' + critMultiplier + (extra.length ? ' | ' + extra.join(' | ') : '');
                 document.getElementById('starDisplay').textContent = '✦: ' + starCount;
                 document.getElementById('limitDisplay').textContent = lt;
@@ -411,7 +475,7 @@
                 document.getElementById('clickSkin').textContent = sk.icon;
                 document.getElementById('clickSkin').style.textShadow = '0 0 30px ' + sk.color + ', 0 0 60px ' + sk.color;
                 document.getElementById('clickGlow').style.background = 'radial-gradient(circle, ' + sk.glow + ')';
-                updateBonusBar(); renderAll(); updateAutoClicker(); save();
+                updateBonusBar(); renderAll(); updateAutoClicker(); saveGame();
             }
 
             function spawnText(x,y,txt,crit) {
@@ -429,6 +493,7 @@
                 setTimeout(function() { document.getElementById('rewardPopup').style.display = 'none'; }, 2500);
             }
 
+            // ==================== ЗАЩИТА ОТ АВТОКЛИКЕРОВ ====================
             var clickTimestamps = [], BLOCK_DURATION = 5000, clickBlockedUntil = 0, warningCount = 0;
             function isAutoClicker() {
                 var n = Date.now();
@@ -496,11 +561,14 @@
                 updateUI();
             });
 
-            // ==================== TON ПЛАТЕЖИ С НАГРАДОЙ ====================
+            // ==================== TON ПЛАТЕЖИ ====================
             var pendingPayment = null;
 
             function requestTonPayment(name, tonAmount, icon, rewardText, rewardAmount, callback) {
-                if (!connectedWallet) { alert('Подключите TON кошелёк!'); return; }
+                if (!connectedWallet) { 
+                    alert('Подключите TON кошелёк!\n\n1. Скачай Tonkeeper\n2. Создай кошелёк\n3. Нажми "Подключить TON"'); 
+                    return; 
+                }
                 pendingPayment = { name, amount: tonAmount, icon, rewardText, rewardAmount, callback };
                 document.getElementById('paymentTitle').textContent = icon + ' ' + name;
                 document.getElementById('paymentDesc').textContent = 'Оплата на кошелёк продавца';
@@ -526,7 +594,6 @@
                         pendingPayment = null;
                     });
                 } catch(e) {
-                    // Демо
                     showReward(pendingPayment.icon, pendingPayment.rewardText + ' (ДЕМО)', pendingPayment.rewardAmount);
                     if (pendingPayment.callback) pendingPayment.callback();
                     document.getElementById('paymentPopup').classList.remove('show');
@@ -560,7 +627,8 @@
                     '<div class="item-row"><span>🤖 Автоклик</span><span>Ур.'+autoClickerLevel+'/5</span></div>'+
                     '<div class="item-row"><span>🔓 Лимит</span><span>'+(unlimitedClicks?'Безлимит':maxClicksToday+'/день')+'</span></div>'+
                     '<div class="item-row"><span>👑 VIP</span><span>'+(vipActive?'Да':'Нет')+'</span></div>'+
-                    '<div class="item-row"><span>💫 x2 Звёзд</span><span>'+(doubleStars?'Да':'Нет')+'</span></div>';
+                    '<div class="item-row"><span>💫 x2 Звёзд</span><span>'+(doubleStars?'Да':'Нет')+'</span></div>'+
+                    '<div class="item-row"><span>💾 Сохранение</span><span style="color:#00ff88;">Активно</span></div>';
             }
 
             function renderSkins() {
@@ -628,20 +696,20 @@
                 });
             }
 
-            // ==================== TON МАГАЗИН — ЯРКИЕ КАРТОЧКИ ====================
+            // ==================== TON МАГАЗИН ====================
             var tonShopItems = [
                 { id: 'pack10000', name: 'НАБОР ЗВЁЗД', icon: '⭐', price: 1, stars: 10000, desc: '10 000 звёзд на скины и бусты', buff: '+10 000 ✦', rewardIcon: '⭐', rewardText: 'ЗВЁЗДЫ ПОЛУЧЕНЫ!', rewardAmt: '+10 000 ✦' },
                 { id: 'pack50000', name: 'БОЛЬШОЙ НАБОР', icon: '🌟', price: 4, stars: 50000, desc: '50 000 звёзд + бонус 5 000', buff: '+55 000 ✦', rewardIcon: '🌟', rewardText: 'МЕГА НАБОР!', rewardAmt: '+55 000 ✦' },
                 { id: 'pack200000', name: 'ГИГАНТСКИЙ НАБОР', icon: '💫', price: 15, stars: 200000, desc: '200 000 звёзд + бонус 25 000', buff: '+225 000 ✦', rewardIcon: '💫', rewardText: 'ГИГАНТ!', rewardAmt: '+225 000 ✦' },
-                { id: 'unlimited', name: 'БЕЗЛИМИТ КЛИКОВ', icon: '♾️', price: 5, desc: 'Кликай сколько хочешь, без ограничений', buff: 'Безлимит навсегда', rewardIcon: '♾️', rewardText: 'БЕЗЛИМИТ АКТИВИРОВАН!', rewardAmt: 'Кликай без конца!' },
-                { id: 'vip', name: 'VIP СТАТУС', icon: '👑', price: 10, desc: 'Все клики дают x3 звёзд НАВСЕГДА', buff: 'x3 звёзд навсегда', rewardIcon: '👑', rewardText: 'VIP АКТИВИРОВАН!', rewardAmt: 'ВСЕ КЛИКИ x3!' },
-                { id: 'double', name: 'ДВОЙНЫЕ ЗВЁЗДЫ', icon: '✨', price: 8, desc: 'Удваивает ВСЕ получаемые звёзды', buff: 'x2 на все звёзды', rewardIcon: '✨', rewardText: 'ДВОЙНЫЕ ЗВЁЗДЫ!', rewardAmt: 'ВСЁ x2!' },
-                { id: 'critBoost', name: 'КРИТ-БУСТ', icon: '💥', price: 3, desc: 'Шанс крита 50% и множитель x10', buff: 'Крит 50% x10', rewardIcon: '💥', rewardText: 'КРИТ-БУСТ!', rewardAmt: 'Крит 50% x10!' },
-                { id: 'auto5', name: 'АВТОКЛИКЕР V', icon: '🤖', price: 7, desc: 'Автокликер 5 уровня: 5 кликов/0.3с', buff: 'Автокликер макс.', rewardIcon: '🤖', rewardText: 'АВТОКЛИКЕР V!', rewardAmt: '5 кликов/0.3с!' },
+                { id: 'unlimited', name: 'БЕЗЛИМИТ КЛИКОВ', icon: '♾️', price: 5, desc: 'Кликай сколько хочешь', buff: 'Безлимит навсегда', rewardIcon: '♾️', rewardText: 'БЕЗЛИМИТ!', rewardAmt: 'Нет лимита кликов!' },
+                { id: 'vip', name: 'VIP СТАТУС', icon: '👑', price: 10, desc: 'Все клики x3 НАВСЕГДА', buff: 'x3 звёзд навсегда', rewardIcon: '👑', rewardText: 'VIP!', rewardAmt: 'ВСЕ КЛИКИ x3!' },
+                { id: 'double', name: 'ДВОЙНЫЕ ЗВЁЗДЫ', icon: '✨', price: 8, desc: 'Удваивает ВСЕ звёзды', buff: 'x2 на все звёзды', rewardIcon: '✨', rewardText: 'ДВОЙНЫЕ ЗВЁЗДЫ!', rewardAmt: 'ВСЁ x2!' },
+                { id: 'critBoost', name: 'КРИТ-БУСТ', icon: '💥', price: 3, desc: 'Крит 50% x10', buff: 'Крит 50% x10', rewardIcon: '💥', rewardText: 'КРИТ-БУСТ!', rewardAmt: 'Крит 50% x10!' },
+                { id: 'auto5', name: 'АВТОКЛИКЕР V', icon: '🤖', price: 7, desc: 'Автокликер 5 ур.: 5 кликов/0.3с', buff: 'Макс. автокликер', rewardIcon: '🤖', rewardText: 'АВТОКЛИКЕР V!', rewardAmt: '5 кликов/0.3с!' },
             ];
 
             function renderTonShop() {
-                var h = '<div style="color:#ffd700;font-size:10px;text-align:center;margin-bottom:6px;">💎 TON МАГАЗИН — ВСЁ ЗА КРИПТУ</div>';
+                var h = '<div style="color:#ffd700;font-size:10px;text-align:center;margin-bottom:6px;">💎 TON МАГАЗИН</div>';
                 for (var i=0;i<tonShopItems.length;i++) {
                     var it=tonShopItems[i];
                     h += '<div class="ton-shop-card">'+
@@ -653,7 +721,7 @@
                         '<div class="shop-rub">≈ ' + Math.floor(it.price*280) + ' ₽</div>'+
                         '</div>';
                 }
-                h += '<div style="color:#555577;font-size:7px;text-align:center;margin-top:4px;">TON уходит на: '+MERCHANT_WALLET.slice(0,6)+'...'+MERCHANT_WALLET.slice(-4)+'</div>';
+                h += '<div style="color:#555577;font-size:7px;text-align:center;margin-top:4px;">Продавец: '+MERCHANT_WALLET.slice(0,6)+'...'+MERCHANT_WALLET.slice(-4)+'</div>';
                 document.getElementById('tonShop').innerHTML = h;
                 document.getElementById('tonShop').querySelectorAll('.shop-price').forEach(function(b){
                     b.addEventListener('click', function(){
@@ -676,12 +744,13 @@
                 });
             }
 
+            // ==================== ЖИВАЯ ТАБЛИЦА ЛИДЕРОВ ====================
             function getLeaderboard() {
                 var lb=[];
                 for (var i=0;i<localStorage.length;i++) {
                     var k=localStorage.key(i);
-                    if (k.indexOf('cosmic5_')===0) {
-                        try { var d=JSON.parse(localStorage.getItem(k)); lb.push({id:k.replace('cosmic5_',''), stars:d.starCount||0, skin:d.activeSkin||'default'}); } catch(e) {}
+                    if (k.indexOf('cosmic6_')===0) {
+                        try { var d=JSON.parse(localStorage.getItem(k)); lb.push({id:k.replace('cosmic6_',''), stars:d.starCount||0, skin:d.activeSkin||'default'}); } catch(e) {}
                     }
                 }
                 lb.sort(function(a,b){return b.stars-a.stars});
@@ -695,23 +764,41 @@
             }
 
             function renderLeaderboard() {
-                var lb=getLeaderboard(), h='<div style="color:#8888ff;text-align:center;font-size:9px;margin-bottom:3px;">🏆 ТОП</div>';
+                var lb=getLeaderboard(), h='<div style="color:#8888ff;text-align:center;font-size:9px;margin-bottom:3px;">🏆 ТОП (обновляется)</div>';
                 for (var i=0;i<Math.min(lb.length,20);i++) {
                     var p=lb[i], nm=p.id===userId?'★ ВЫ':('Игрок '+p.id.slice(0,6));
                     var tc=''; if(i===0) tc=' top1'; if(i===1) tc=' top2'; if(i===2) tc=' top3';
                     var si='✦'; for(var j=0;j<skins.length;j++) if(skins[j].id===p.skin) { si=skins[j].icon; break; }
                     h += '<div class="leaderboard-item'+tc+'"><span>'+(i+1)+'. '+si+' '+nm+'</span><span>'+p.stars+' ✦</span></div>';
                 }
+                if (lb.length===0) h += '<div style="color:#444466;text-align:center;">Нет игроков</div>';
                 document.getElementById('leaderboard').innerHTML = h;
             }
 
             function renderAll() { renderInventory(); renderSkins(); renderShop(); renderTonShop(); renderLeaderboard(); }
 
-            var today = new Date().toDateString();
-            if (localStorage.getItem('cosmicDate5_'+userId)!==today) { clicksToday=0; localStorage.setItem('cosmicDate5_'+userId,today); }
-            setInterval(function(){ var n=new Date().toDateString(); if(n!==today){ today=n; clicksToday=0; localStorage.setItem('cosmicDate5_'+userId,today); updateUI(); } }, 60000);
+            // Живое обновление лидеров каждые 30 секунд
+            setInterval(function() {
+                updateLeaderboard();
+                if (document.getElementById('leaderboard').classList.contains('active')) {
+                    renderLeaderboard();
+                }
+            }, 30000);
 
+            // Сброс кликов в полночь
+            var today = new Date().toDateString();
+            var savedDate = localStorage.getItem('cosmicDate6_'+userId);
+            if (savedDate!==today) { clicksToday=0; localStorage.setItem('cosmicDate6_'+userId,today); }
+            setInterval(function(){ var n=new Date().toDateString(); if(n!==today){ today=n; clicksToday=0; localStorage.setItem('cosmicDate6_'+userId,today); updateUI(); } }, 60000);
+
+            // ==================== ЗАПУСК ====================
+            loadGame();
             updateUI();
+            console.log('🚀 Cosmic Clicker запущен');
+            console.log('👤 ID: ' + userId);
+            console.log('💾 Сохранение: localStorage');
+            console.log('💰 Кошелёк: ' + MERCHANT_WALLET);
+            console.log('📊 Топ обновляется каждые 30 сек');
         })();
     </script>
 </body>
